@@ -1,6 +1,6 @@
 +++
 # Display name
-name = "John Best"
+name = "John K Best"
 
 # Username (this should match the folder name)
 authors = ["admin"]
@@ -90,4 +90,4 @@ user_groups = ["Researchers", "Visitors"]
 
 +++
 
-John Best is a graduate student in the [Punt Lab](https://puntlab.washington.edu) at the University of Washington. He is in the third year of his PhD in the [Quantitative Ecology and Resource Management (QERM)](https://depts.washington.edu/qerm/) program. His research focuses on applying spatial and spatiotemporal modeling techniques to questions in ecology and particulary fisheries science. He is developing spatiotemporal models to combine fishery-independent (survey) and fishery-dependent data in an effort to improve indices of abundance. He is also developing techniques to improve spatial models by including nonstationary spatial effects. An additional project is focused on improving parameterizations for Bayesian state-space models to reduce bias and computation time.
+I am a third year PhD student in the Quantitative Ecology and Resource Manamgent program at the University of Washington. My research focuses on applying spatiotemporal statistical models to questions in fisheries management and ecology. In particular, I am developing models for improving indices of abundance derived from fishery-dependent observations. I am also intereted in improving the computational efficiency and reliability of Bayesian model fits through the application of advanced Markov chain Monte Carlo tools like the No-U-Turn Sampler. Before returning to graduate school, I worked as an apprentice aviation mechanic and mountain guide.
