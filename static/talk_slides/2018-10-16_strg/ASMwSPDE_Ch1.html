@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Advanced Spatial Modeling with SPDEs using R and INLA</title>
+    <meta charset="utf-8">
+    <link href="libs/remark-css-0.0.1/robot-fonts.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/robot.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Advanced Spatial Modeling with SPDEs using R and INLA
+## Chapter 1: the Integrated Nested Laplace Approximation
+### 2018/10/16
+
+---
+
+
+`$$\renewcommand{\vec}[1]{\boldsymbol{#1}}$$`
+
+
+
+# Integrated Nested Laplace Approximation
+
+For:
+
+- observations `\(\vec{y}\)` in an exponential family,
+- depending on some hyperparameters `\(\vec{\theta_1}\)`,
+- whose mean `\(\vec{\mu}\)`
+- is linked to a linear predictor `\(\vec{\eta}\)`,
+- potentially including some latent effects `\(\vec{x}\)`,
+- where `\(\vec{x}\)` are distributed as a GMRF,
+- depending on some hyperparameters `\(\vec{\theta_2}\)`.
+
+We have a likelihood
+
+`$$p(\vec{y} \mid \vec{x}, \vec{\theta}) = \prod_{i \in I} p(y_i \mid \eta_i, \vec{\theta}).$$`
+
+---
+
+## INLA
+
+We have a posterior
+
+`$$\begin{aligned}
+p(\vec{x}, \vec{\theta} \mid \vec{y}) &amp;\propto
+  p(\vec{\theta}) \times p(\mathbf{x} \mid \vec{\theta}) \times \prod_{i \in I} p(y_i \mid x_i,\vec{theta})\\
+  &amp;\propto p(\vec{\theta}) \times \det\left[\vec{Q}(\vec{\theta})\right]^{1/2} \exp\left\{-\frac{1}{2}\vec{x}^\top \vec{Q}(\vec{\theta}) \vec{x}\right\} \times \prod_{i \in I} \exp \log p\left(y_i \mid \vec{x}, \vec{\theta}\right)\\
+  &amp;\propto p(\vec{\theta}) \times \det\left[\vec{Q}(\vec{\theta})\right]^{1/2} \exp\left\{-\frac{1}{2}\mathbf{x}^{\top} \vec{Q}(\vec{\theta}) \vec{x} + \sum_{i \in I} \log(p(y_i \mid x_i, \vec{\theta}))\right\}.
+\end{aligned}$$`
+
+???
+
+- Crappy MathJax rendering???
+- See the latent GMRF field!
+
+---
+
+## INLA
+
+Then we can get our posterior marginals as
+
+`$$\begin{aligned}
+p(x_i \mid \vec{y}) &amp;= \int p(x_i \mid \vec{\theta}, \vec{y}) p(\vec{\theta} \mid \vec{y}) d\vec{\theta}\\
+p(\theta_j \mid \vec{y}) &amp;= \int p(\vec{\theta} \mid \vec{y}) d\theta_{-j}
+\end{aligned}$$`
+
+Both the densities and the integrals are approximated, so that
+
+`$$\tilde{p}(x_i \mid \vec{y}) = \sum_k \tilde{p}(x_i \mid \theta_k, \vec{y}) \cdot \tilde{p}(\theta_k \mid \vec{y}) \cdot \Delta_k.$$`
+
+Where `\(\Delta_k\)` are integration weights.
+
+???
+
+- Various approximations are available
+
+---
+
+# R-INLA
+
+
+```r
+library(INLA)
+
+data(SPDEtoy)
+SPDEtoy.sp &lt;- SPDEtoy
+coordinates(SPDEtoy.sp) &lt;- ~ s1 + s2
+```
+
+
+
+---
+
+## A toy data set
+
+
+&lt;img src="ASMwSPDE_Ch1_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## A simple model
+
+`$$\begin{eqnarray}
+y_i &amp; \sim &amp;  \operatorname{Normal}(\mu_i, \tau^{-1}), &amp; i=1, \ldots,200 \nonumber \\
+\mu_i &amp; = &amp; \alpha + \beta_1 s_{1i} + \beta_2 s_{2i} \nonumber \\
+\alpha &amp; \sim &amp; \operatorname{Uniform} \nonumber\\
+\beta_j &amp; \sim &amp; \operatorname{Normal}(0, 0.001^{-1}), &amp; j = 1,2 \nonumber\\
+\tau &amp; \sim &amp; \operatorname{Gamma}(1, 0.00005). \nonumber\\
+\end{eqnarray}$$`
+
+---
+
+## Fitting the simple model
+
+
+```r
+m0 &lt;- inla(y ~ s1 + s2, data = SPDEtoy)
+m0$summary.fixed
+```
+
+```
+              mean    sd 0.025quant 0.5quant 0.975quant   mode      kld
+(Intercept) 10.132 0.242     9.6561   10.132      10.61 10.132 6.24e-07
+s1           0.762 0.429    -0.0815    0.762       1.61  0.762 6.24e-07
+s2          -1.584 0.429    -2.4276   -1.584      -0.74 -1.584 6.24e-07
+```
+
+---
+
+## Fitting the simple model
+
+&lt;img src="ASMwSPDE_Ch1_files/figure-html/unnamed-chunk-6-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Adding a random effect
+
+Fit the effect of each coordinate as separable random walks, so that
+
+`$$\begin{aligned}
+\Delta u_i &amp;= u_i - u_{i+1} \sim N(0, \tau_{u}^{-1}), &amp; i = 1,\ldots, n - 1\\
+\mu_i &amp;= \alpha + u_{1, (i)} + u_{2, (i')}
+\end{aligned}$$`
+
+
+```r
+f.rw1 &lt;- y ~ f(s1, model = "rw1", scale.model = TRUE) +
+             f(s2, model = "rw1", scale.model = TRUE)
+
+m1 &lt;- inla(f.rw1, data = SPDEtoy)
+```
+
+???
+
+The `f` components in the formula indicate random effects.
+---
+
+### Side note: latent models
+
+
+```r
+names(inla.models()$latent)
+```
+
+```
+ [1] "linear"       "iid"          "mec"          "meb"         
+ [5] "rgeneric"     "rw1"          "rw2"          "crw2"        
+ [9] "seasonal"     "besag"        "besag2"       "bym"         
+[13] "bym2"         "besagproper"  "besagproper2" "fgn"         
+[17] "fgn2"         "ar1"          "ar1c"         "ar"          
+[21] "ou"           "generic"      "generic0"     "generic1"    
+[25] "generic2"     "generic3"     "spde"         "spde2"       
+[29] "spde3"        "iid1d"        "iid2d"        "iid3d"       
+[33] "iid4d"        "iid5d"        "2diid"        "z"           
+[37] "rw2d"         "rw2diid"      "slm"          "matern2d"    
+[41] "copy"         "clinear"      "sigm"         "revsigm"     
+[45] "log1exp"      "logdist"     
+```
+
+---
+
+## Adding a random effect
+
+
+```r
+m1$summary.fixed
+```
+
+```
+            mean    sd 0.025quant 0.5quant 0.975quant mode      kld
+(Intercept) 9.86 0.121       9.62     9.86       10.1 9.86 2.42e-13
+```
+
+
+```r
+m1$summary.hyperpar
+```
+
+
+```
+           mean       sd 0.025quant 0.5quant 0.975quant  mode
+Prec obs  0.351   0.0403      0.276     0.35      0.434 0.349
+Prec s1   7.089  20.4765      0.449     2.60     41.163 0.919
+Prec s2  46.870 190.8290      1.368    12.88    297.997 3.119
+```
+
+---
+
+## Adding a random effect
+
+&lt;img src="ASMwSPDE_Ch1_files/figure-html/unnamed-chunk-12-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Prediction
+
+
+```r
+pred_locs &lt;- expand.grid(s1 = seq(0.025, 0.975, len = 20),
+                         s2 = seq(0.025, 0.975, len = 20),
+                         y = NA)
+SPDEtoy.pred &lt;- rbind(SPDEtoy, pred_locs)
+m0.pred &lt;- inla(y ~ s1 + s2, data = SPDEtoy.pred,
+                control.predictor = list(compute = TRUE))
+m1.pred &lt;- inla(f.rw1, data = SPDEtoy.pred,
+                control.predictor = list(compute = TRUE))
+```
+
+???
+
+Just use `NA`s as the response where you want predictions
+
+---
+
+## Prediction
+
+
+```r
+m0_exp_fn &lt;- function(idx) {
+    inla.emarginal(identity,
+                   m0.pred$marginals.fitted.values[[idx]])
+}
+m0_exp_fitted &lt;- sapply(201:600, m0_exp_fn)
+
+m1_exp_fn &lt;- function(idx) {
+    inla.emarginal(identity,
+                   m1.pred$marginals.fitted.values[[idx]])
+}
+m1_exp_fitted &lt;- sapply(201:600, m1_exp_fn)
+```
+
+---
+
+## Prediction
+
+&lt;img src="ASMwSPDE_Ch1_files/figure-html/unnamed-chunk-15-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Model and summary options
+
+&lt;table&gt;
+&lt;caption&gt;&lt;span id="tab:inlaopts"&gt;Table 1.3: &lt;/span&gt; Some arguments taken by &lt;code&gt;inla()&lt;/code&gt; to define a model and produce a summary of model fitting.&lt;/caption&gt;
+&lt;colgroup&gt;
+&lt;col width="14%" /&gt;
+&lt;col width="85%" /&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr class="header"&gt;
+&lt;th&gt;Argument&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;quantiles&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Quantiles to be computed in the summary (default is &lt;code&gt;c(0.025, 0.5, 0.975)&lt;/code&gt;).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;&lt;code&gt;E&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Expected values (for some Poisson models, default is &lt;code&gt;NULL&lt;/code&gt;).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;offset&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Offset to be added to the linear predictor (default is &lt;code&gt;NULL&lt;/code&gt;).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;&lt;code&gt;weights&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Weights on the observations (default is &lt;code&gt;NULL&lt;/code&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;Ntrials&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Number of trials (for some Binomial models, default is &lt;code&gt;NULL&lt;/code&gt;).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;&lt;code&gt;verbose&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Verbose output (default is &lt;code&gt;FALSE&lt;/code&gt;).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+---
+
+## Model estimation control arguments
+
+&lt;table&gt;
+&lt;caption&gt;&lt;span id="tab:inlacontrol"&gt;Table 1.4: &lt;/span&gt; Some arguments taken by &lt;code&gt;inla()&lt;/code&gt; to customize the estimation process.&lt;/caption&gt;
+&lt;colgroup&gt;
+&lt;col width="26%" /&gt;
+&lt;col width="73%" /&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr class="header"&gt;
+&lt;th&gt;Argument&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;control.fixed&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Control options for fixed effects.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;&lt;code&gt;control.family&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Control options for the likelihood.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;control.compute&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Control options for what is computed (e.g., DIC, WAIC, etc.)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;&lt;code&gt;control.predictor&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Control options for the linear predictor.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;control.inla&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Control options for how the posterior is computed.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;&lt;code&gt;control.results&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Control options for computing the marginals of random effects and linear predictors.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;control.mode&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Control options to set the modes of the hyperparameters.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+---
+
+## Model and summary options
+
+
+```r
+compute_opts &lt;- list(dic = TRUE, cpo = TRUE, waic = TRUE)
+m0.opts &lt;- inla(y ~ s1 + s2, data = SPDEtoy,
+                control.compute = compute_opts)
+m1.opts &lt;- inla(f.rw1, data = SPDEtoy,
+                control.compute = compute_opts)
+```
+
+
+
+| Model   |  WAIC | Effective parameters |
+| :------ | ----: |           ---------: |
+| Linear  |   810 |                 3.69 |
+| RW1     |   800 |                15.53 |
+
+---
+
+## Approximation strategies
+
+&lt;table&gt;
+&lt;caption&gt;&lt;span id="tab:controlinla"&gt;Table 1.5: &lt;/span&gt; Some options that can be passed though &lt;code&gt;control.inla&lt;/code&gt; to control the estimation process with INLA. Check the manual page (with &lt;code&gt;?control.inla&lt;/code&gt;) for more details.&lt;/caption&gt;
+&lt;colgroup&gt;
+&lt;col width="20%" /&gt;
+&lt;col width="80%" /&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr class="header"&gt;
+&lt;th&gt;Option&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;strategy&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Strategy used for the approximations: &lt;code&gt;simplified.laplace&lt;/code&gt; (default), &lt;code&gt;adaptive&lt;/code&gt;, &lt;code&gt;gaussian&lt;/code&gt; or &lt;code&gt;laplace&lt;/code&gt;.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;&lt;code&gt;int.strategy&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Integration strategy: &lt;code&gt;auto&lt;/code&gt; (default), &lt;code&gt;ccd&lt;/code&gt;, &lt;code&gt;grid&lt;/code&gt; or &lt;code&gt;eb&lt;/code&gt; (check manual page for other options).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+???
+
+Strategies
+- listed from least to most precise approximations
+- also least to most computationally expensive
+
+---
+
+## Approximation strategies
+
+
+
+```r
+m1.ccd &lt;- inla(f.rw1, data = SPDEtoy,
+               control.compute = compute_opts,
+               control.inla = list(int.strategy = "ccd"))
+m1.grid &lt;- inla(f.rw1, data = SPDEtoy,
+                control.compute = compute_opts,
+                control.inla = list(int.strategy = "grid"))
+m1.eb &lt;- inla(f.rw1, data = SPDEtoy,
+              control.compute = compute_opts,
+              control.inla = list(int.strategy = "eb"))
+```
+
+
+
+|     |   Pre| Running|  Post| Total|
+|:----|-----:|-------:|-----:|-----:|
+|CCD  | 0.327|   0.302| 0.042| 0.671|
+|Grid | 0.334|   9.588| 0.060| 9.982|
+|EB   | 0.319|   0.284| 0.044| 0.647|
+
+???
+
+CCD: Central Composite Design
+Grid: grid integration
+EB: Empirical Bayes; no integration of hyperparameters
+
+Approximation precision:
+grid &gt; ccd &gt; eb
+
+Computation
+grid &gt;&gt; ccd &gt; eb
+
+EB much reduced computation for more complicated models; maybe useful for quick model iteration?
+
+---
+class: left, middle
+
+# It's not enough to say that you used a vague prior and hope.
+
+.right[### Hope has no place in statistics.
+
+—[Daniel Simpson](http://andrewgelman.com/2018/04/03/justify-my-love/)]
+
+???
+- Non-informative priors are *hard* (i.e. deriving Jeffrey's)
+- Berger et al. 2001
+- Oliveira 2007 with measurement error
+- Model-specific
+- Maybe just want MAP == MLE?
+- What does that even mean?
+- And besides that...
+
+---
+
+## Priors: Fixed effects
+
+### Use the `control.fixed` argument
+
+&lt;table&gt;
+&lt;caption&gt;&lt;span id="tab:priorfixed"&gt;Table 1.6: &lt;/span&gt; Options to set the prior of the fixed effects in argument &lt;code&gt;control.fixed&lt;/code&gt;.&lt;/caption&gt;
+&lt;colgroup&gt;
+&lt;col width="24%" /&gt;
+&lt;col width="75%" /&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr class="header"&gt;
+&lt;th&gt;Option&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;mean.intercept&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Prior mean for the intercept (default is &lt;span class="math inline"&gt;\(0\)&lt;/span&gt;).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;&lt;code&gt;prec.intercept&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Prior precision for the intercept (default is &lt;span class="math inline"&gt;\(0\)&lt;/span&gt;).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;mean&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Prior mean for the coefficients of the covariates (default is &lt;span class="math inline"&gt;\(0\)&lt;/span&gt;). It can be a named list.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;&lt;code&gt;prec&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Prior precision for the coefficients of the covariates (default is &lt;span class="math inline"&gt;\(0.001\)&lt;/span&gt;). It can be a named list.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+???
+
+- Note sure what's going on with intercept prior precision of 0? Probably a typo
+- Separate priors for intercept and each covariate effect.
+- Note priors on *precision*, not standard deviation
+
+---
+
+## Priors: Hyperparameters
+
+### Use `hyper` in `control.likelihood`
+
+&lt;table&gt;
+&lt;caption&gt;&lt;span id="tab:priorhyper"&gt;Table 1.7: &lt;/span&gt; Options to set the prior of the hyperparameters in the likelihood and random effects.&lt;/caption&gt;
+&lt;colgroup&gt;
+&lt;col width="24%" /&gt;
+&lt;col width="75%" /&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr class="header"&gt;
+&lt;th&gt;Option&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;initial&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Initial value of the hyperparameter.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;&lt;code&gt;prior&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Prior distribution to be used.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;param&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Vector with the values of the parameters of the prior distribution.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;&lt;code&gt;fixed&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Boolean variable to set the parameter to a fixed value (default &lt;code&gt;FALSE&lt;/code&gt;).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+???
+
+Be careful; priors are always on *internal* scale (e.g. log-precisions)
+
+---
+
+## Priors: Example
+
+
+```r
+# Prior on the fixed effects
+prior.fixed &lt;- list(mean.intercept = 0,
+                    prec.intercept = 1,
+                    mean = 0,
+                    prec = 1)
+
+# Prior on the likelihood precision (log-scale)
+prior.prec &lt;- list(initial = 0,
+                   prior = "normal",
+                   param = c(0, 1),
+                   fixed = FALSE)
+
+# Prior on the precision of the RW1
+prior.rw1 &lt;- list(initial = 0,
+                  fixed = TRUE)
+```
+
+---
+
+## Priors: Example
+
+
+```r
+f.hyper &lt;- y ~ 1 +
+  f(s1, model = "rw1",
+    hyper = list(prec = prior.rw1),
+    scale.model = TRUE) +
+  f(s2, model = "rw1",
+    hyper = list(prec = prior.rw1),
+    scale.model = TRUE)
+
+m1.hyper &lt;- inla(f.hyper, data = SPDEtoy,
+                 control.fixed = prior.fixed,
+                 control.family =
+                   list(hyper = list(prec = prior.prec)))
+```
+
+---
+
+## Priors: Example
+
+
+```r
+m1$summary.fixed
+```
+
+```
+            mean    sd 0.025quant 0.5quant 0.975quant mode      kld
+(Intercept) 9.86 0.121       9.62     9.86       10.1 9.86 2.42e-13
+```
+
+```r
+m1.hyper$summary.fixed
+```
+
+```
+            mean    sd 0.025quant 0.5quant 0.975quant mode      kld
+(Intercept) 9.73 0.117       9.49     9.73       9.95 9.73 2.81e-06
+```
+
+---
+
+## Priors: Example
+
+
+```r
+m1$summary.hyperpar
+```
+
+
+```
+           mean       sd 0.025quant 0.5quant 0.975quant  mode
+Prec obs  0.351   0.0403      0.276     0.35      0.434 0.349
+Prec s1   7.089  20.4765      0.449     2.60     41.163 0.919
+Prec s2  46.870 190.8290      1.368    12.88    297.997 3.119
+```
+
+
+```r
+m1.hyper$summary.hyperpar
+```
+
+
+```
+         mean     sd 0.025quant 0.5quant 0.975quant  mode
+Prec obs 0.37 0.0393      0.298    0.369      0.452 0.365
+```
+
+???
+
+RW1 hyperparameter values are not estimated (`fixed = TRUE`), so they are not listed in the summary.
+
+---
+
+## Using posterior marginals
+
+&lt;table&gt;
+&lt;caption&gt;&lt;span id="tab:fmarginals"&gt;Table 1.8: &lt;/span&gt; Functions to manipulate the posterior marginals.&lt;/caption&gt;
+&lt;thead&gt;
+&lt;tr class="header"&gt;
+&lt;th&gt;Function&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;inla.emarginal()&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Compute the expectation of a function.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;&lt;code&gt;inla.dmarginal()&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Compute the density.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;inla.pmarginal()&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Compute a probability.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;&lt;code&gt;inla.qmarginal()&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Compute a quantile.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;inla.rmarginal()&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Sample from the marginal.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;&lt;code&gt;inla.hpdmarginal()&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Compute a high probability density (HPD) interval.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;inla.smarginal()&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Interpolate the posterior marginal.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;&lt;code&gt;inla.mmarginal()&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Compute the mode.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;&lt;code&gt;inla.tmarginal()&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Transform the marginal.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;&lt;code&gt;inla.zmarginal()&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Compute summary statistics.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+## Penalized Complexity priors
+
+Shrinks a fit towards a "base" model, with interpretable priors:
+
+`$$\Pr(\sigma &gt; u) = \alpha,\ u &gt; 0,\ 0 &lt; \alpha &lt; 1.$$`
+
+So a prior on our random walk precision with a 1% probability of a precision less than 1 is declared as:
+
+
+```r
+pcprior &lt;- list(prec = list(prior = "pc.prec",
+                            param = c(1, 0.01)))
+f.rw1.pc &lt;- y ~
+  f(s1, model = "rw1", scale.model = TRUE, hyper = pcprior) +
+  f(s2, model = "rw1", scale.model = TRUE, hyper = pcprior)
+m1.pc &lt;- inla(f.rw1.pc, data = SPDEtoy)
+```
+
+---
+
+## Penalized Complexity priors
+
+&lt;img src="ASMwSPDE_Ch1_files/figure-html/unnamed-chunk-28-1.png" style="display: block; margin: auto;" /&gt;
+
+???
+
+Similar priors are also available for Matérn covariance parameters, as discussed in chapter 2.
+
+---
+class: left, middle
+
+# Advanced likelihoods
+
+---
+
+## Multiple likelihoods
+
+`$$\begin{eqnarray}
+y_i &amp; \sim &amp;  N(\mu_i, \tau_1^{-1}), &amp; i = 1,\ldots, 200 \nonumber \\
+y_i &amp; \sim &amp;  N(\mu_i,  \tau_2^{-1}), &amp; i = 201,\ldots, 400 \nonumber \\
+\mu_i &amp; = &amp; \alpha + \beta_1 s_{1i} + \beta_2 s_{2i}, &amp; i=1,\ldots,400 \nonumber \\
+\alpha &amp; \sim &amp; \operatorname{Uniform} \nonumber\\
+\beta_j &amp; \sim &amp; N(0, 0.001^{-1}), &amp; j = 1, 2 \nonumber\\
+\tau_j &amp; \sim &amp; Ga(1, 0.00005), &amp; j = 1, 2 \nonumber\\
+\end{eqnarray}$$`
+
+---
+
+## Multiple likelihoods
+
+
+```r
+# Generate new observations with additional noise
+SPDEtoy$y2 &lt;- SPDEtoy$y + rnorm(nrow(SPDEtoy), sd = 2)
+
+# Number of locations
+n &lt;- nrow(SPDEtoy)
+
+# Response matrix
+Y &lt;- matrix(NA, ncol = 2, nrow = n * 2)
+# Add `y` in first column, rows 1 to 200
+Y[1:n, 1] &lt;- SPDEtoy$y
+# Add `y2` in second column, rows 201 to 400
+Y[n + 1:n, 2] &lt;- SPDEtoy$y2
+```
+
+---
+
+## Multiple likelihoods
+
+
+```r
+m0.2lik_dat &lt;- data.frame(Y = Y,
+                          s1 = rep(SPDEtoy$s1, 2),
+                          s2 = rep(SPDEtoy$s2, 2))
+m0.2lik &lt;- inla(Y ~ s1 + s2,
+                family = c("gaussian", "gaussian"),
+                data = m0.2lik_dat)
+```
+
+
+```r
+head(m0.2lik_dat, 3)
+```
+
+```
+        Y.1 Y.2         s1         s2
+1 11.521206  NA 0.08265625 0.05640625
+2  5.277960  NA 0.61230625 0.91680625
+3  6.902959  NA 0.16200625 0.35700625
+```
+
+```r
+tail(m0.2lik_dat, 3)
+```
+
+```
+    Y.1       Y.2         s1         s2
+398  NA 12.801234 0.02480625 0.00765625
+399  NA 12.974725 0.42575625 0.00600625
+400  NA  4.892098 0.13140625 0.33930625
+```
+
+
+???
+
+Data frame is as expected, apparently INLA picks up a `Y` response to include `Y.1` and `Y.2`. Not sure if this means we should be careful about names in data frames passed to `inla`.
+
+---
+
+## Multiple likelihoods
+
+
+```r
+m0.2lik$summary.fixed
+```
+
+```
+                  mean        sd 0.025quant   0.5quant 0.975quant
+(Intercept) 10.0921169 0.1989410  9.7011544 10.0921599 10.4824780
+s1           0.9251948 0.3529444  0.2324179  0.9249872  1.6184804
+s2          -1.6645549 0.3526899 -2.3576998 -1.6644674 -0.9725374
+                  mode          kld
+(Intercept) 10.0922634 1.990902e-07
+s1           0.9246007 2.571243e-07
+s2          -1.6642616 2.028734e-07
+```
+
+
+```r
+m0.2lik$summary.hyperpar
+```
+
+
+```
+            mean     sd 0.025quant 0.5quant 0.975quant  mode
+Prec obs 1 0.310 0.0310      0.253    0.309      0.375 0.306
+Prec obs 2 0.146 0.0145      0.119    0.145      0.176 0.144
+```
+
+---
+
+## Copy effect
+
+`$$\begin{eqnarray}
+  y_i &amp; \sim &amp;  N(\mu_i, \tau^{-1}), &amp; i = 1,\ldots, 400 \nonumber \\
+  \mu_i &amp; = &amp; \alpha + \beta_1 s_{1i} + \beta_2 s_{2i}, &amp; i=1,\ldots,200 \nonumber \\
+  \mu_i &amp; = &amp; \alpha + \beta_1 s_{1i} + \beta \cdot\beta^{*}_2 s_{2i}, &amp; i=201,\ldots,400 \nonumber \\
+  \alpha &amp; \sim &amp; \operatorname{Uniform} \nonumber\\
+  \beta_j &amp; \sim &amp; N(0, 0.001^{-1}), &amp; j = 1, 2 \nonumber\\
+  \beta^*_2 &amp; \sim &amp; N(\beta_2, \tau_{\beta_2}^{-1} = 1 / \exp(14)) \nonumber \\
+  \tau_j &amp; \sim &amp; Ga(1, 0.00005), &amp; j = 1, 2 \nonumber
+  \end{eqnarray}$$`
+
+???
+
+- Share an effect between different parts of the likelihood
+- Uses shared coefficient on s_2, with potential for some multiplicative error.
+
+---
+
+## Copy effect
+
+
+```r
+y.vec &lt;- c(SPDEtoy$y, SPDEtoy$y2)
+r &lt;- rep(1:2, each = nrow(SPDEtoy))
+s1.vec &lt;- rep(SPDEtoy$s1, 2)
+s2.vec &lt;- rep(SPDEtoy$s2, 2)
+i1 &lt;- c(rep(1, n), rep(NA, n))
+i2 &lt;- c(rep(NA, n), rep(1, n))
+
+d &lt;- data.frame(y.vec, s1.vec, s2.vec, i1, i2)
+```
+
+---
+
+## Copy effect
+
+Simple copy:
+
+
+```r
+tau.prior = list(prec = list(initial = 0.001, fixed = TRUE))
+f.copy &lt;- y.vec ~ s1.vec +
+  f(i1, s2.vec, model = "iid", hyper = tau.prior) +
+  f(i2, s2.vec, copy = "i1")
+m0.copy &lt;- inla(f.copy, data = d)
+```
+
+With estimated multiplicative effect:
+
+
+```r
+f.copy2 &lt;- y.vec ~ s1.vec + f(i1, s2.vec, model = "iid") +
+                   f(i2, s2.vec, copy = "i1", fixed = FALSE)
+m0.copy2 &lt;- inla(f.copy2, data = d)
+```
+
+---
+
+## Replicate effect
+
+
+```r
+d$r &lt;- rep(1:2, each = nrow(SPDEtoy))
+f.rep &lt;- y.vec ~ f(s1.vec, model = "linear", replicate = r) +
+                 f(s2.vec, model = "linear", replicate = r)
+m0.rep &lt;- inla(f.rep, data = d)
+```
+
+???
+
+Shared hyperparameter values
+
+---
+
+## Linear combinations of latent effects
+
+Uses the `\(\vec{A}\)` "observation" matrix, where
+
+`$$\vec{\eta}^{*\top} = \vec{A}\vec{\eta}^\top.$$`
+
+
+```r
+# Define A matrix
+A = Diagonal(n + n, 10)
+
+# Fit model
+m0.A &lt;- inla(f.rep, data = d, control.predictor = list(A = A))
+```
+
+???
+
+- Very useful for interpolating SPDE effects!
+- This code does give an error though...
+
+---
+
+# Note!!
+
+Most of the code, charts, and other content is taken from [Chapter 1 of ASMwSPDEinR&amp;INLA](https://becarioprecario.bitbucket.io/spde-gitbook/ch-INLA.html), and all credit is due to those authors.
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script>
+(function() {
+  var i, text, code, codes = document.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+})();
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
