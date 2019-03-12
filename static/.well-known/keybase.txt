@@ -1,0 +1,56 @@
+==================================================================
+https://keybase.io/jkbest
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://www.posdefecology.net
+  * I am jkbest (https://keybase.io/jkbest) on keybase.
+  * I have a public key ASAuN0bTYsWZjQ4LS89Cf69VKSts5R6qaBWVDe38ygQvCwo
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "0120886efb8fffc2ce35c1671fed6fe7e1ea2bf791370215ffd233b86c9db682f1320a",
+      "host": "keybase.io",
+      "kid": "01202e3746d362c5998d0e0b4bcf427faf55292b6ce51eaa6815950dedfcca042f0b0a",
+      "uid": "9090bdecbe0c3178a9c03584128c1b19",
+      "username": "jkbest"
+    },
+    "merkle_root": {
+      "ctime": 1552399533,
+      "hash": "2a3cf768bea4a0ddfa36984fd3247b8a26ac37c5680d2cb68a693eb513a3330a80d5bccc24f623d3397eff3d7b55cc089c4fa1fad89d0f5aafe186b254f17805",
+      "hash_meta": "adadb01e6b1136d82277a8048b6abc7dcca1678667856efbb30af44d29493766",
+      "seqno": 4930195
+    },
+    "service": {
+      "entropy": "hWQeeuWYsVocCTb9rbgbqd1D",
+      "hostname": "www.posdefecology.net",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 2
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "3.1.0"
+  },
+  "ctime": 1552399553,
+  "expire_in": 504576000,
+  "prev": "03f25c1a7927665fcc9a03cc25d3969460fe4679de24ed7435b72a9af5be37a6",
+  "seqno": 20,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgLjdG02LFmY0OC0vPQn+vVSkrbOUeqmgVlQ3t/MoELwsKp3BheWxvYWTESpcCFMQgA/JcGnknZl/MmgPMJdOWlGD+RnneJO10NbcqmvW+N6bEIMLvQ9EECcfSfOu0WdWS8f5nuN5+ix0zCqaThwhuR3tiAgHCo3NpZ8RADr80MEdFC/5emayXgW9XJuaRQNJz/J9fVctudNMNi/N8dRwz2LQGh+tj2qsvTuGQFGMUvSLwt0wxAfiDVB3mDKhzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIGsFLr2qpc+Ui2w1ZC5bPM9ix59G+3Gl4oYrkqLP0Z9+o3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/jkbest
+
+==================================================================
