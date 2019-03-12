@@ -61,10 +61,10 @@ user_groups = ["Researchers", "Visitors"]
   icon_pack = "fas"
   link = "#contact"  # For a direct email link, use "mailto:test@example.org".
 
-[[social]]
-  icon = "twitter"
-  icon_pack = "fab"
-  link = "https://twitter.com/isposdef"
+# [[social]]
+#   icon = "twitter"
+#   icon_pack = "fab"
+#   link = "https://twitter.com/isposdef"
 
 [[social]]
   icon = "google-scholar"
