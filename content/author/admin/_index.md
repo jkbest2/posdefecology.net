@@ -15,7 +15,7 @@ role = "PhD student"
 #   Separate multiple entries with a comma, using the form: `[ {name="Org1", url=""}, {name="Org2", url=""} ]`.
 organizations = [
   { name = "Punt Lab", url = "https://puntlab.washington.edu/" },
-  { name = "Quantitative Ecology & Resource Management", url = "https://depts.washington.edu/qerm/"},
+  { name = "Quantitative Ecology & Resource Management", url = "https://quantitative.uw.edu/"},
   { name = "University of Washington", url = "https://www.washington.edu"} ]
 
 # Short bio (displayed in user profile at end of posts)
