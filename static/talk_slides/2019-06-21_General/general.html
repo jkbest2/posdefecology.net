@@ -226,8 +226,6 @@ Fishery-independent
 .pull-left[
 - Discretize domain
 - Exploit conditional relationships
-- GMRF :: Gaussian *Markov* random field
-- Represent Matérn GRF as a GMRF (Lindgren, et al., 2011)
 
 `$$\left( \kappa^2 - \Delta \right)^{\alpha / 2} x(\vec{u}) = \mathcal{W}(\vec{u})$$`
 ]
@@ -238,6 +236,7 @@ Fishery-independent
 
 ???
 
+- Represent Matérn GRF as a GMRF (Lindgren, et al., 2011)
 - Uses finite element method to solve the SPDE associated with the Matérn covariance (Bakka, 2018)
 - Results in sparse precision matrix
 - Prediction/interpolation is `\(\mathcal{O}(n)\)`
