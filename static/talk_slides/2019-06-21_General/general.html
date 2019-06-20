@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Advances in fisheries index standardization using spatiotemporal models</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="John Best" />
+    <meta name="date" content="2019-06-21" />
+    <link href="general_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="general_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="general_files/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Advances in fisheries index standardization using spatiotemporal models
+### John Best
+### University of Washington
+### June 21, 2019
+
+---
+
+
+
+
+
+
+# Indices of abundance are important
+
+.center[
+![](general_files/figure-html/fake_index-1.png)&lt;!-- --&gt;
+]
+
+`$$\renewcommand{\vec}[1]{\boldsymbol{#1}}$$`
+`$$\newcommand{\tr}{^\intercal}$$`
+`$$\newcommand{\dd}{\mathop{}\,\mathrm{d}}$$`
+`$$\newcommand{\MVN}{\operatorname{MVN}}$$`
+`$$\newcommand{\Normal}{\operatorname{Normal}}$$`
+`$$\newcommand{\logNormal}{\log\Normal}$$`
+
+???
+
+- Tell us how relative abundance changes over time
+- Inputs to stock assessment models
+- Key for management
+- Usually use CPUE
+
+---
+
+# Our model of CPUE is straightforward
+
+`$$\frac{C}{E} = qN$$`
+
+or
+
+`$$C = qEN$$`
+
+or
+
+`$$\log C = \log q + \log E + \log N$$`
+
+???
+
+C :: catch - often zero!
+E :: effort - often assumed known, may be in different units
+N :: abundance - this is what we want to perform inference on!
+q :: catchability - translate units
+
+---
+
+# But this hides complexity
+
+.center[
+![Boat with unknown catch](figs/boat_maybefish.png)
+]
+
+???
+
+- Spatial distribution of catch and effort
+- Gear/vessel effects
+- Time of year
+- Time of day
+- Habitat covariates
+
+---
+
+# Use GLMMs to get an index
+
+`$$\eta_{1i} = \vec{X}_1 \vec{\beta}_1 + \vec{Z}_1\vec{\gamma}_1 + \vec{Q}_1 \vec{\lambda} + \vec{W}_1 \vec{\phi}_1$$`
+
+`$$\eta_{2i} = \vec{X}_2 \vec{\beta}_2 + \vec{Z}_2\vec{\gamma}_2 + \vec{Q}_2 \vec{\lambda} + \vec{W}_2 \vec{\phi}_2$$`
+
+Transform to probability of encounter and positive catch rate using an inverse link functions `\(g_p^{-1}\)` and `\(g_r^{-1}\)`, and positive catch rate distribution `\(f\)`. Then
+
+`$$\Pr(C = c_i) = \begin{cases}
+  1 - g_p^{-1}(\eta_{1i}, \eta_{2i}), &amp;\text{for } c_i = 0\\
+  f(g_r^{-1}(\eta_{1i}, \eta_{2i}), \vec{\theta}) &amp;\text{for } c_i &gt; 0.
+  \end{cases}$$`
+
+???
+
+- Two processes needed
+- `\(\beta\)` and `\(\lambda\)` are fixed effects
+- `\(\gamma\)` and `\(\phi\)` are (possible) random effects
+- First two terms are abundance/density-related
+- Third and fourth are catchability
+- Link function(s) give PE and PCR
+- Random effects may include spatial/spatiotemporal
+
+---
+
+# Use GLMMs to get an index
+
+For the same set of covariates at locations `\(s\)` withing the domain `\(S\)`,
+
+`$$\eta^*_{1s} = \vec{X}_{1s} \vec{\beta}_{1} + \vec{Z}_{1s}\vec{\gamma}_{1}$$`
+
+`$$\eta^*_{2s} = \vec{X}_{2s} \vec{\beta}_{2} + \vec{Z}_{2s}\vec{\gamma}_{2}$$`
+
+Then we get our index for year `\(t\)` is
+
+`$$I_t = \int_{s \in S} g_p^{-1}(\eta^*_{1s}, \eta^*_{2s}) \times g_r^{-1}(\eta^*_{1s}, \eta^*_{2s})\, \textrm{d}s$$`
+
+&lt;!-- `$$I_t = \sum_s a_s \times g_p^{-1}(\eta^*_{1s}, \eta^*_{2s}) \times g_r^{-1}(\eta^*_{1s}, \eta^*_{2s})$$` --&gt;
+
+???
+
+- Removes effects of catchability
+- Should capture trends in *relative abundance*, even if it's not absolute
+
+---
+
+# There are two types of CPUE observation
+
+.pull-left[
+![Fishery-independent (survey) vessel](figs/boat_survey.svg)
+
+## Fishery-independent
+]
+
+.pull-right[
+![Fishery-dependent (commercial) vessel](figs/boat_fishery.svg)
+
+## Fishery-dependent
+]
+
+---
+
+# They sample from the same abundance
+
+![Fish in space](figs/01_fish.svg)
+
+---
+
+# ...but behave very differently
+
+![Survey effort distribution](figs/survey_fleet.svg)
+
+???
+
+Fishery-independent
+
+- Surveys
+- Expensive
+- Predefined sampling scheme
+- Sampling procedures
+- "Gold standard"
+- Currently used in spatiotemporal index standardizations
+
+---
+
+# ...but behave very differently
+
+![Fishery effort distribution](figs/fishery_fleet.svg)
+
+???
+
+- Commercial
+- Vessels fishing anyways
+- Go where the fish are
+- Targeting issues
+- In-season depletion (?)
+- Skill-dependent catches (Thorson, et al., 2017; Thorson, 2017)
+- Observers usually focused on different goals (e.g. catch accounting for within-season management)
+- Not used in spatiotemporal index standardizations - difficult to standardize
+
+---
+
+# We don't observe most covariates
+
+.center[
+![](general_files/figure-html/fake_grf-1.png)&lt;!-- --&gt;
+]
+
+???
+
+- Account for "missing" covariates
+
+---
+
+# But we can represent them with GRFs
+
+.center[
+![](general_files/figure-html/unnamed-chunk-1-1.png)&lt;!-- --&gt;
+]
+
+???
+
+- Allows us to account for more variance
+- Explicit spatial structure for both abundance and effort
+- Principled imputation (geostatistics) in unfished areas (Carruthers, et al., 2011)
+- More precise indices (Cao, et al., 2017; Thorson, et al., 2015)
+- Can prevent hyperstability (Rose, et al., 1999)
+
+---
+
+# Gaussian random fields are difficult
+
+- Covariance kernels must be positive semidefinite
+- Most operations (likelihoods etc.) are `\(\mathcal{O}(n^3)\)`
+
+---
+
+# Use GMRFs instead
+
+.pull-left[
+- Discretize domain
+- Exploit conditional relationships
+- GMRF :: Gaussian *Markov* random field
+- Represent Matérn GRF as a GMRF (Lindgren, et al., 2011)
+
+`$$\left( \kappa^2 - \Delta \right)^{\alpha / 2} x(\vec{u}) = \mathcal{W}(\vec{u})$$`
+]
+
+.pull-right[
+![](general_files/figure-html/unit_mesh-1.png)&lt;!-- --&gt;
+]
+
+???
+
+- Uses finite element method to solve the SPDE associated with the Matérn covariance (Bakka, 2018)
+- Results in sparse precision matrix
+- Prediction/interpolation is `\(\mathcal{O}(n)\)`
+- `\(\nu = \alpha - d / 2\)` :: Smoothness
+
+---
+
+# Chapter 1
+
+## Can we get better indices of abundance by combining fishery-independent and -dependent CPUE observations?
+
+
+???
+
+- Catchability may vary *more* in fishery-dependent observations
+- Differences in skill
+- Differences in familiarity with an area/fine-scale targeting
+- Targeting different species in multispecies fisheries
+- In-season depletion - surveys don't (?) fish down an area appreciably
+
+---
+
+# Hypotheses
+
+## Allowing catchability to vary over the spatial domain will standardize fishery-dependent observations.
+
+???
+
+- Accounting for excess variability is hard; need some structure. In this case use spatial random effects
+- Need to constrain catchability using catchability of fishery-independent observations; can't allow fishery-independent catchability to vary in space
+
+---
+
+# Hypotheses
+
+## Precision and accuracy of derived indices of abundance are improved when these two sources of information are included.
+
+???
+
+- Generally there will be an order of magnitude more data available for fishery-dependent fleet
+- Lots more noisy observations *should* help
+
+---
+
+# Estimation model
+
+`$$\Pr(C_i = 0)\sim \operatorname{Bernoulli}(p_{i})$$`
+`$$C_{i} \mid C_{i} &gt; 0 \sim
+  \operatorname{log\,Normal}\left(
+    log(r_{i}) - \frac{\sigma_c^2}{2},
+    \sigma_c^2
+  \right)$$`
+
+???
+
+- C :: observed catch
+- p :: probability of positive catch
+- r :: positive catch rate
+
+Catch likelihood depends on whether zero or positive
+
+---
+
+# Estimation model
+
+Using the Poisson link (Thorson, 2017):
+
+`$$p_i = 1 - \exp(-a_{i} n_{i})$$`
+`$$r_i = \frac{n_{i}}{p_{i}} w_{i}.$$`
+
+???
+
+- n :: group density
+- w :: weight per group
+- a :: area swept as offset
+
+---
+
+# Estimation model
+
+`$$\log(\vec{n}) = \vec{X}_n\vec{\beta}_n +
+  \vec{A}_{\omega}\vec{\omega}_n +
+  \vec{A}_{\epsilon}\vec{\epsilon}_n +
+  \vec{Q}_n \vec{\lambda}_n +
+  \vec{V} \vec{\eta}_n +
+  \vec{A}_{q\omega}\vec{\omega}_{qn} +
+  \vec{A}_{q\epsilon}\vec{\epsilon}_{qn}$$`
+
+`$$\log(\vec{w}) = \vec{X}_w\vec{\beta}_w +
+  \vec{A}_{\omega}\vec{\omega}_w +
+  \vec{A}_{\epsilon}\vec{\epsilon}_w +
+  \vec{Q}_w \vec{\lambda}_w +
+  \vec{V} \vec{\eta}_w +
+  \vec{A}_{q\omega}\vec{\omega}_{qw} +
+  \vec{A}_{q\epsilon}\vec{\epsilon}_{qw}$$`
+
+`$$\vec{\omega}_\cdot \sim \MVN\left(\vec{0}, \vec{Q}^{-1}_{\omega\cdot}\right)$$`
+
+`$$\vec{\epsilon}_\cdot \sim \MVN\left(\vec{0}, \vec{Q}^{-1}_{\epsilon\cdot}\right)$$`
+
+`$$\vec{\eta}_\cdot \sim \MVN\left(\vec{0}, \sigma_\eta^2 \vec{I}\right)$$`
+
+???
+
+## Not all effects necessarily used
+
+## Each spatial and spatiotemporal field has its own marginal variance/decorrelation distance parameters (and autoregressive parameter where applicable)
+
+- `\(\beta\)` :: fixed abundance effects
+- `\(\lambda\)` :: fixed catchability effects
+- `\(\omega\)` :: spatial effects, abundance and catchability
+- `\(\epsilon\)` :: spatiotemporal effects, both
+- `\(\eta\)` :: vessel effects
+- `\(A\)` :: projection matrices -- catchability effects have rows associated with survey observations zero'd
+
+---
+
+# Estimation model
+
+`$$\log(\vec{n}^*) = \vec{X}^*_n\hat{\vec{\beta}}_n +
+  \vec{A}_{\omega}^*\hat{\vec{\omega}}_n +
+  \vec{A}_{\epsilon}^*\hat{\vec{\epsilon}}_n$$`
+
+`$$\log(\vec{w}^*) = \vec{X}^*_w\hat{\vec{\beta}}_w +
+  \vec{A}^*_{\omega}\hat{\vec{\omega}}_w +
+  \vec{A}^*_{\epsilon}\vec{\epsilon}_w$$`
+
+`$$p^*_{st} = 1 - \exp\left( -a_{st} \times n^*_{st} \right)$$`
+
+`$$r^*_{st} = \frac{n^*_{st}}{p^*_{st}} \times w^*_{st}$$`
+  
+`$$I_t = \sum_{s \in S} \alpha_s p^*_{st} r^*_{st}\ \text{for } t = 1,\ldots,T$$`
+
+???
+
+- `\(a\)` :: area associated with set of effects
+- `\(\alpha\)` are integration weights, typically equal to `\(a\)`
+- Index comes from *abundance* effects, integrated over the spatial domain for each year
+- Uncertainty typically estimated using generalized delta method
+
+---
+
+# Simulation study
+
+## Operating model
+
+.pull-left[
+1. Start at equilibrium
+2. Harvest
+3. Population dynamics
+4. Allow movement
+5. Repeat from 2
+]
+
+.pull-right[
+![Example population](figs/resized_fishmap2.gif)
+]
+
+???
+
+## Allows for:
+
+- Varying preference
+- Varying catchability
+- Different catch distributions
+
+---
+
+# Simulation study
+
+## Proposed experiments
+
+Operating model:
+
+- Three levels of spatially varying catchability
+- Catchability independent or correlated with abundance
+- Fishery-independent observations also subject to spatially varying catchability
+
+Estimation models:
+
+- Baseline: fishery-independent observations only
+- Näive: use all data, no spatially varying catchability
+- Proposed: include spatially and/or spatiotemporally varying catchability
+
+Comparisons:
+
+- Accuracy and precision of derived index of abundance
+- Ability to recover spatial and/or spatiotemporal heterogeneity in catchability
+
+???
+
+- Consider looking at *how much* data are required before this is a helpful method
+
+---
+
+# Case study
+
+- Species from Alaska groundfish complex with both survey and observer data
+- Fit same three estimation models
+- Compare precision of indices
+
+???
+
+May be reasonable to do more than one species, but extending to multispecies analysis a la VAST is beyond the scope of this chapter.
+
+---
+
+# Chapter 2
+
+## Can we improve standardization of indices derived from fishery-dependent observations in the absence of fishery-dependent observations by accounting for preferential sampling?
+
+???
+
+- Common situation in e.g. tuna or other highly mobile species
+
+---
+
+# Preferential sampling matters
+
+.center[
+![Random sampling](figs/randsamp_cr.png)
+]
+
+.bottom[
+See also Conn, et al. (2017); Diggle, et al. (2010)
+]
+
+---
+
+# Preferential sampling matters
+
+.center[
+![Preferential sampling](figs/prefsamp_cr.png)
+]
+
+.bottom[
+See also Conn, et al. (2017); Diggle, et al. (2010)
+]
+
+???
+
+- Far from observations, reverts to mean that is biased high
+- Similar to Walters (2003); Carruthers, et al. (2011)
+- Shown that preferential sampling affects *predictions* more than *inferences* (Gelfand, et al., 2012)
+
+---
+
+# Hypotheses
+
+## Preferential sampling is present in fishery-dependent CPUE data sets, potentially biasing indices of abundance
+
+???
+
+- On the other hand, this may indicate that fishing locations include *some* information about abundance
+
+---
+
+# Hypotheses
+
+## Fishing location distribution can be modeled using the previous year's abundance distribution
+
+???
+
+- May be helpful to include a spatial and/or spatiotemporal random effect (Cox process vs. LGCP)
+
+---
+
+# Hypotheses
+
+## Accounting for preferential sampling reduces bias in indices of abundance
+
+---
+
+# Estimation model
+
+- Same as Chapter 1, but no spatially varying catchability
+- Following Diggle, et al. (2010), model fishing locations as an inhomogeneous Poisson process
+
+`$$\Lambda(s) = \exp\left( b_0 + b_1 \times n^*(s, t - 1) \times r^*(s, t - 1) +
+  b_2 \times p^*(s, t) \times r^*(s, t)\right)$$`
+  
+- Approximate LGCP likelihood using Simpson, et al. (2016)
+
+???
+
+- Novel work here is including temporal component; other studies have focused on spatial
+- Possible that no preferential sampling
+- Determine by looking at `\(b_1\)`, `\(b_2\)`
+- Could include catchability factors?
+
+---
+
+# Simulation study
+
+## Preferences
+
+- None
+- Previous year abundance
+- Current year abundance
+- Independent
+- Subset of aggregations (operating only)
+
+## Comparisons
+
+- Derived index bias and accuracy
+- Detection of preference
+- "Cost" of estimating preference in its absence
+
+???
+
+- What should a highly mobile species operating model look like? Independent realizations of the same process? Probably not AR-like over years.
+- Can I use SPDE oscillating covariance to get aggregations?
+
+---
+
+# Case studies
+
+## Fishery with both fishery-dependent and -independent observations
+
+- Fit index standardization model on fishery-independent data only
+- Fit each estimation model on fishery-dependent data only
+
+## Fishery with only fishery-dependent observations
+
+- Fit each estimation model
+
+## Comparisons
+
+- Relative biases of each estimation model
+
+???
+
+- Fishery-independent vs fishery-dependent only gives a hypothetical what if we did have fishery-independent data?
+- Might need to be careful with choosing a species that looks as much like a highly mobile species as possible?
+
+---
+
+# Chapter 3
+
+## Do more realistic spatial models result in better indices of abundance?
+
+.pull-left[
+![Alaska bathymetry](figs/alaska_bathymetry.png)
+]
+
+.pull-right[
+![Finnish archipelago](figs/finnish_archipelago_corr.png)
+
+.center[
+From Bakka, et al. (2019)
+]]
+
+???
+
+- Anisotropy due to turning coastline
+- Nonstationarity due to continental shelf, barriers, other factors
+
+---
+
+# Hypothesis
+
+## Using bathymetry as a covariate to control decorrelation distance and accounting for areas above sea level as barriers will result in more accurate and precise estimated indices of abundance
+
+???
+
+- Idea is to "pinch" the correlation between coast and the continental slope
+
+---
+
+# Modeling nonstationarity
+
+`$$\vec{Q} = \vec{T}\left(\vec{K}^2\vec{C}\vec{K}^2 +
+                         \vec{K}^2\vec{G} + \vec{G}\vec{K}^2 +
+                         \vec{G}\vec{C}^{-1}\vec{G}\right)\vec{T}$$`
+
+`$$\log(\vec{T}_{ii}) = \vec{X}_\tau \vec{\beta}_\tau$$`
+
+`$$\log(\vec{K}_{ii}) = \vec{X}_{\kappa^2} \vec{\beta}_{\kappa^2}$$`
+
+---
+
+# Simulation study
+
+## Operating model
+
+- Nonstationarity-inducing habitat
+- Nonstationary noise terms
+
+## Estimation models
+
+- Basic index standardization model
+- Allow nonstationary range and variance
+- Use bathymetry, other available covariates
+- Attempt to integrate barriers
+
+???
+
+- Still need to think carefully about how to design an appropriate operating model
+
+---
+
+# Case study
+
+- Fishery-independent data from Gulf of Alaska
+- Stationary spatial fields
+- Nonstationary range
+- Nonstationary range and variance
+
+???
+
+- Try to find best combination of spatial/spatiotemporal fields
+- Where to share parameters?
+
+---
+
+# Preliminary results
+
+.center[
+![Alaska bathymetry](figs/alaska_bathymetry.png)
+]
+
+???
+
+- Complex underwater environment
+
+---
+
+# Preliminary results
+
+.center[
+![Sebastes alutus catches](figs/alaska_catch.png)
+]
+
+???
+
+- *Sebastes alutus* i.e. Pacific Ocean perch
+- red :: positive catches
+- gray :: zero catch
+
+---
+
+# Preliminary results
+
+`$$\Pr(C_i &gt; 0) = \operatorname{logit}^{-1}\left(\beta_t +
+  \beta_1 d_i + \beta_1 d_i^2 +
+  \left[\vec{A}\vec{\omega}_t\right]_i \right)$$`
+  
+`$$\vec{\omega}_t \sim \MVN\left(\vec{0}, \vec{Q}^{-1}\right)\ \text{for } t = 1,\ldots,T$$`
+
+`$$\log(\kappa^2_i) = \beta_{\kappa^2 0} + \beta_{\kappa^2 1} d_i$$`
+
+`$$\log(\tau_i) = \beta_{\tau 0} + \beta_{\tau 1} d_i$$`
+
+???
+
+- `\(C\)` :: catch
+- `\(t\)` :: year
+- `\(d\)` :: depth
+
+---
+
+# Preliminary results
+
+.center[
+![Stationary correlation structure in Gulf of Alaska](figs/stationary.png)
+]
+
+???
+
+- Need to reproject to remove lat/long effect
+
+---
+
+# Preliminary results
+
+.center[
+![Nonstationary correlation structure in Gulf of Alaska](figs/nonstationary.png)
+]
+
+???
+
+- Notably wider along continental shelf
+- Captures decline in correlation off continental shelf
+- Note also has nonstationary variance... something to address
+
+---
+
+# Preliminary results
+
+## Correlation range at bathymetric depths
+
+.center[
+![Nonstationary correlation range by depth](figs/parvals.png)
+]
+
+???
+
+- Need to account for barriers at zero depth
+- Also used quadratic effect of depth, very similar so didn't show maps here
+
+---
+
+
+# Chapter 4
+
+## Can we get more reliable results faster by reparameterizing nonlinear Bayesian state-space models?
+
+---
+
+# Catch of South Atlantic Albacore
+
+
+
+.center[
+![](general_files/figure-html/tuna_catch-1.png)&lt;!-- --&gt;
+]
+
+---
+
+# CPUE of South Atlantic Albacore
+
+.center[
+![](general_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+]
+
+---
+
+# Model
+
+`$$I_t = qKP_t \exp(v_t)$$`
+
+`$$v_t \sim \operatorname{Normal}\left(0, \tau^2\right)$$`
+
+`$$P_1 = \exp(u_1)$$`
+
+`$$P_t \mid P_{t-1},K,r,\sigma^2 = \left[P_{t-1} + r P_{t-1}(1 - P_{t-1}) -
+  \frac{C_{t-1}}{K} \right]e^{u_t}$$`
+
+`$$u_t \sim \operatorname{Normal}(0, \sigma^2)$$`
+
+???
+
+- Priors match Meyer, et al. (1999)
+- Used with and without truncations
+- How to deal with negative biomass predictions?
+- How to minimize divergences and max treedepth warnings?
+- How to increase sampler efficiency?
+
+---
+
+# Centered parameterization
+
+`$$I_t \sim \logNormal\left(\log qKP_t, \tau^2 \right)$$`
+
+`$$P_1 \sim \logNormal\left( 0, \sigma^2 \right)$$`
+
+`$$\tilde{P}_t = \max\begin{cases}
+    P_{t-1} + r P_{t-1}(1 - P_{t-1}) - \frac{C_{t-1}}{K}\\
+    0.001
+    \end{cases}$$`
+
+`$$P_t \sim \logNormal(\log\tilde{P}_t, \sigma^2)$$`
+  
+???
+
+- "Standard" parameterization, used in Meyer, et al. (1999)
+
+---
+
+# Noncentered parameterization
+
+`$$I_t = qKP_t \exp(v_t)$$`
+
+`$$v_t \sim \operatorname{Normal}\left(0, \tau^2\right)$$`
+
+`$$P_1 \sim \logNormal\left( 0, \sigma^2 \right)$$`
+
+`$$\tilde{P}_t = \max\begin{cases}
+    P_{t-1} + r P_{t-1}(1 - P_{t-1}) - \frac{C_{t-1}}{K}\\
+    0.001
+    \end{cases}$$`
+
+`$$P_t \sim \logNormal(\log\tilde{P}_t, \sigma^2)$$`
+
+---
+
+# Constrained depletion
+
+`$$I_t \sim \logNormal\left( \log qP_tK, \tau^2 \right)$$`
+
+`$$P_1 \sim \logNormal\left( 0, \sigma^2 \right)$$`
+
+`$$\tilde{P}_t =
+    P_{t-1} + r P_{t-1}(1 - P_{t-1}) - \frac{C_{t-1}}{K}$$`
+
+`$$P_t \sim \logNormal(\log\tilde{P}_t, \sigma^2)$$`
+
+`$$\frac{1 + r - 
+  \sqrt{\left( 1 + r \right)^2 -
+    \frac{4rC_t}{K}}}{2r} &lt;
+  P_{t - 1} &lt;
+  \frac{1 + r + 
+    \sqrt{\left( 1 + r \right)^2 -
+      \frac{4rC_t}{K}}}{2r}$$`
+      
+---
+
+# Marginalize out catchability
+
+`$$Z_t = \log\left( \frac{I_t}{P_tK} \right)$$`
+
+`$$\hat{q}' = \frac{\sum_t Z_t}{T}$$`
+
+`$$Z_t \sim \Normal\left( \hat{q}', \tau^2 \right)$$`
+
+`$$P_1 \sim \logNormal\left( 0, \sigma^2 \right)$$`
+
+`$$\tilde{P}_t = \max\begin{cases}
+    P_{t-1} + r P_{t-1}(1 - P_{t-1}) - \frac{C_{t-1}}{K}\\
+    0.001
+    \end{cases}$$`
+
+`$$P_t \sim \logNormal(\log\tilde{P}_t, \sigma^2)$$`
+
+???
+
+- Follows Walters, et al. (1994)
+- Marginalize out catchability
+
+---
+
+# Explicit fishing mortality
+
+`$$I_t \sim \logNormal\left(\log qKP_t, \tau^2 \right)$$`
+
+`$$P_1 \sim \logNormal\left( 0, \sigma^2 \right)$$`
+
+`$$\tilde{P}_t = \left[P_{t-1} + r P_{t-1}(1 - P_{t-1})\right]
+  \left( 1 - \exp(-F_t) \right)$$`
+
+`$$C_t^* = K \left[ P_t + rP_t(1 - P_t) \right] \exp(-F_t)$$`
+
+`$$C_t \sim \Normal\left( C^*_t, \xi^2 \right)$$`
+
+`$$P_t \sim \logNormal(\log\tilde{P}_t, \sigma^2)$$`
+  
+`$$F_t \sim \operatorname{Flat}(0, \infty)$$`
+
+???
+
+- `\(\xi\)` fixed, but posteriors found to be mostly insensitive
+- Also prevents predictions of negative biomass
+- Except if due to excess density dependence
+
+---
+
+# Posterior 
+
+![Posterior biomass series](figs/fig2_biopost.png)
+
+---
+
+# Efficiency
+
+![Sampler efficiency](figs/sampler_efficiency.png)
+
+---
+
+# Chapter 4 conclusions
+
+- Parameterizations matter
+- Careful tuning of modern MCMC samplers yields improved performance
+- Diagnostics matter
+- Marginalization of parameters improves performance
+
+???
+
+- In review at *Fisheries Research* (Best, et al., in review)
+
+---
+
+# Conclusions
+
+## Three approaches to improving spatiotemporal index standardization
+
+- Combine fishery-dependent and -independent observations
+- Account for preferential sampling in fishery-dependent observations
+- Allow for more flexible spatial structure
+
+## Improve Bayesian state-space model fitting
+
+- Use appropriate parameterizations
+- Pay attention to diagnostics
+
+---
+
+# References
+
+Bakka, H. (2018). "How to Solve the Stochastic Partial
+Differential Equation That Gives a Matérn Random Field Using the
+Finite Element Method". En. In: _arXiv:1803.03765 [stat]_. arXiv:
+[1803.03765 [stat]](https://arxiv.org/abs/1803.03765).
+
+Bakka, H. et al. (2019). "Non-Stationary Gaussian Models with
+Physical Barriers". In: _Spatial Statistics_. ISSN: 2211-6753.
+DOI:
+[10.1016/j.spasta.2019.01.002](https://doi.org/10.1016%2Fj.spasta.2019.01.002).
+
+Best, J. K. et al. "Parameterizations for Bayesian State-Space
+Models". En. In: _Fish. Res._.
+
+Cao, J. et al. (2017). "Spatiotemporal Index Standardization
+Improves the Stock Assessment of Northern Shrimp in the Gulf of
+Maine". In: _Canadian Journal of Fisheries and Aquatic Sciences_
+74.11, pp. 1781-1793. ISSN: 0706-652X. DOI:
+[10.1139/cjfas-2016-0137](https://doi.org/10.1139%2Fcjfas-2016-0137).
+
+Carruthers, T. R. et al. (2011). "Integrating Imputation and
+Standardization of Catch Rate Data in the Calculation of Relative
+Abundance Indices". In: _Fisheries Research_ 109.1, pp. 157-167.
+ISSN: 01657836. DOI:
+[10.1016/j.fishres.2011.01.033](https://doi.org/10.1016%2Fj.fishres.2011.01.033).
+
+---
+
+# References
+
+Conn, P. B. et al. (2017). "Confronting Preferential Sampling When
+Analysing Population Distributions: Diagnosis and Model-Based
+Triage". In: _Methods in Ecology and Evolution_. ISSN: 2041210X.
+DOI:
+[10.1111/2041-210X.12803](https://doi.org/10.1111%2F2041-210X.12803).
+
+Diggle, P. J. et al. (2010). "Geostatistical Inference under
+Preferential Sampling". In: _J. Royal Stat. Soc. B_ 59.2, pp.
+191-232. ISSN: 00359254. DOI:
+[10.1111/j.1467-9876.2009.00701.x](https://doi.org/10.1111%2Fj.1467-9876.2009.00701.x).
+
+Gelfand, A. E. et al. (2012). "On the Effect of Preferential
+Sampling in Spatial Prediction". In: _Environmetrics_ 23.7, pp.
+565-578. ISSN: 11804009. DOI:
+[10.1002/env.2169](https://doi.org/10.1002%2Fenv.2169).
+
+Lindgren, F. et al. (2011). "An Explicit Link between Gaussian
+Fields and Gaussian Markov Random Fields: The Stochastic Partial
+Differential Equation Approach". In: _J. Royal Stat. Soc. B_ 73.4,
+pp. 423-498. ISSN: 13697412. DOI:
+[10.1111/j.1467-9868.2011.00777.x](https://doi.org/10.1111%2Fj.1467-9868.2011.00777.x).
+
+Meyer, R. et al. (1999). "BUGS in Bayesian Stock Assessments". In:
+_Can. J. Fish. Aquat. Sci._ 56.6, pp. 1078-1087. ISSN: 0706-652X.
+DOI: [10.1139/f99-043](https://doi.org/10.1139%2Ff99-043).
+
+---
+
+# References
+
+Rose, G. A. et al. (1999). "Hyperaggregation of Fish and
+Fisheries: How Catch-per-Unit-Effort Increased as the Northern Cod
+(Gadus Morhua) Declined". In: _Canadian Journal of Fisheries and
+Aquatic Sciences_ 56.S1, pp. 118-127. DOI:
+[10.1139/f99-207](https://doi.org/10.1139%2Ff99-207).
+
+Simpson, D. P. et al. (2016). "Going off Grid: Computationally
+Efficient Inference for Log-Gaussian Cox Processes". In:
+_Biometrika_ 103.1, pp. 49-70. ISSN: 0006-3444. DOI:
+[10.1093/biomet/asv064](https://doi.org/10.1093%2Fbiomet%2Fasv064).
+arXiv: [1111.0641](https://arxiv.org/abs/1111.0641).
+
+Thorson, J. T. (2017). "Three Problems with the Conventional
+Delta-Model for Biomass Sampling Data, and a Computationally
+Efficient Alternative". En. In: _Can. J. Fish. Aquat. Sci._ 75.9,
+pp. 1369-1382. ISSN: 0706-652X. DOI:
+[10.1139/cjfas-2017-0266](https://doi.org/10.1139%2Fcjfas-2017-0266).
+
+Thorson, J. T. et al. (2017). "Accounting for Spatiotemporal
+Variation and Fisher Targeting When Estimating Abundance from
+Multispecies Fishery Data". In: _Canadian Journal of Fisheries and
+Aquatic Sciences_ 74.11, pp. 1794-1807. ISSN: 0706-652X. DOI:
+[10.1139/cjfas-2015-0598](https://doi.org/10.1139%2Fcjfas-2015-0598).
+
+---
+
+# References
+
+Thorson, J. T. et al. (2015). "Geostatistical Delta-Generalized
+Linear Mixed Models Improve Precision for Estimated Abundance
+Indices for West Coast Groundfishes". In: _ICES Journal of Marine
+Science_ 72.5, pp. 1297-1310. ISSN: 1095-9289. DOI:
+[10.1093/icesjms/fsu243](https://doi.org/10.1093%2Ficesjms%2Ffsu243).
+
+Walters, C. J. (2003). "Folly and Fantasy in the Analysis of
+Spatial Catch Rate Data". In: _Canadian Journal of Fisheries and
+Aquatic Sciences_ 60.12, pp. 1433-1436. ISSN: 0706-652X. DOI:
+[10.1139/f03-152](https://doi.org/10.1139%2Ff03-152).
+
+Walters, C. et al. (1994). "Calculation of Bayes Posterior
+Probability Distributions for Key Population Parameters". In:
+_Can. J. Fish. Aquat. Sci._ 51.3, pp. 713-722. ISSN: 0706-652X.
+DOI: [10.1139/f94-071](https://doi.org/10.1139%2Ff94-071).
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create();
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
