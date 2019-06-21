@@ -61,10 +61,10 @@ or
 
 ???
 
-C :: catch - often zero!
-E :: effort - often assumed known, may be in different units
-N :: abundance - this is what we want to perform inference on!
-q :: catchability - translate units
+- C :: catch - often zero!
+- E :: effort - often assumed known, may be in different units
+- N :: abundance - this is what we want to perform inference on!
+- q :: catchability - translate units
 
 ---
 
@@ -341,9 +341,9 @@ Using the Poisson link (Thorson, 2017):
 
 ???
 
-## Not all effects necessarily used
+### Not all effects necessarily used
 
-## Each spatial and spatiotemporal field has its own marginal variance/decorrelation distance parameters (and autoregressive parameter where applicable)
+### Each spatial and spatiotemporal field has its own marginal variance/decorrelation distance parameters (and autoregressive parameter where applicable)
 
 - `\(\beta\)` :: fixed abundance effects
 - `\(\lambda\)` :: fixed catchability effects
@@ -362,18 +362,13 @@ Using the Poisson link (Thorson, 2017):
 
 `$$\log(\vec{w}^*) = \vec{X}^*_w\hat{\vec{\beta}}_w +
   \vec{A}^*_{\omega}\hat{\vec{\omega}}_w +
-  \vec{A}^*_{\epsilon}\vec{\epsilon}_w$$`
+  \vec{A}^*_{\epsilon}\hat{\vec{\epsilon}}_w$$`
 
-`$$p^*_{st} = 1 - \exp\left( -a_{st} \times n^*_{st} \right)$$`
-
-`$$r^*_{st} = \frac{n^*_{st}}{p^*_{st}} \times w^*_{st}$$`
-  
-`$$I_t = \sum_{s \in S} \alpha_s p^*_{st} r^*_{st}\ \text{for } t = 1,\ldots,T$$`
+`$$I_t = \sum_{s \in S} \alpha_s n^*_{st} w^*_{st}\ \text{for } t = 1,\ldots,T$$`
 
 ???
 
-- `\(a\)` :: area associated with set of effects
-- `\(\alpha\)` are integration weights, typically equal to `\(a\)`
+- `\(\alpha\)` are integration weights, typically an area around the point location
 - Index comes from *abundance* effects, integrated over the spatial domain for each year
 - Uncertainty typically estimated using generalized delta method
 
@@ -514,10 +509,8 @@ See also Conn, et al. (2017); Diggle, et al. (2010)
 
 - Same as Chapter 1, but no spatially varying catchability
 - Following Diggle, et al. (2010), model fishing locations as an inhomogeneous Poisson process
-
-`$$\Lambda(s) = \exp\left( b_0 + b_1 \times n^*(s, t - 1) \times r^*(s, t - 1) +
-  b_2 \times p^*(s, t) \times r^*(s, t)\right)$$`
-  
+&lt;!-- $$\Lambda(s) = \exp\left( b_0 + b_1 \times n^*(s, t - 1) \times w^*(s, t - 1) + --&gt;
+  &lt;!-- b_2 \times n^*(s, t) \times w^*(s, t)\right)$$ --&gt;
 - Approximate LGCP likelihood using Simpson, et al. (2016)
 
 ???
@@ -616,12 +609,18 @@ From Bakka, et al. (2019)
 
 `$$\log(\vec{K}_{ii}) = \vec{X}_{\kappa^2} \vec{\beta}_{\kappa^2}$$`
 
+???
+
+- Index standardization remains essentially the same
+- Precision matrices for spatial and spatiotemporal effects uses above formulation
+
 ---
 
 # Simulation study
 
 ## Operating model
 
+- Stationary, isotropic
 - Nonstationarity-inducing habitat
 - Nonstationary noise terms
 
@@ -837,7 +836,7 @@ From Bakka, et al. (2019)
 `$$\frac{1 + r - 
   \sqrt{\left( 1 + r \right)^2 -
     \frac{4rC_t}{K}}}{2r} &lt;
-  P_{t - 1} &lt;
+  P_{t} &lt;
   \frac{1 + r + 
     \sqrt{\left( 1 + r \right)^2 -
       \frac{4rC_t}{K}}}{2r}$$`
