@@ -8,3 +8,9 @@
 
 [context.production.environment]
   HUGO_ENV = "production"
+
+[[redirects]]
+  from = "https://posdefecology.netlify.com/*"
+  to = "https://www.posdefecology.net/:splat"
+  status = 301
+  force = true
