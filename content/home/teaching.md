@@ -4,6 +4,8 @@
 # To create more sections, duplicate this file and edit the values below as desired.
 widget = "custom"
 active = true
+headless = true
+
 date = 2016-04-20T00:00:00
 author = "admin"
 
