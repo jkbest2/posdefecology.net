@@ -5,6 +5,7 @@
 widget = "pages"  # Do not modify this line!
 active = false  # Activate this widget? true/false
 weight = 90  # Order that this section will appear.
+headless = true
 
 title = "Recent Publications"
 subtitle = ""

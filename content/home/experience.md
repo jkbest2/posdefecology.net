@@ -2,6 +2,7 @@
 # Experience widget.
 widget = "experience"  # Do not modify this line!
 active = false  # Activate this widget? true/false
+headless = true
 
 title = "Experience"
 subtitle = ""
