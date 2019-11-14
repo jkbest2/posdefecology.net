@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Parameterizations for Bayesian state-space surplus production models</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="John Best and André Punt" />
+    <meta name="date" content="2019-11-14" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="metropolis.css" type="text/css" />
+    <link rel="stylesheet" href="bigfonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Parameterizations for Bayesian state-space surplus production models
+## SAFS Graduate Student Symposium 2019
+### John Best and André Punt
+### QERM &amp; SAFS
+### November 14, 2019
+
+---
+
+
+&lt;!--
+Colors:
+Posterior:
+- full: #3b99b1
+- fade: #9dccd8
+Observation likelihood:
+- full: #7f9977
+- fade: #cfdfca
+Latent likelihood:
+- full: #e8a419
+- fade: #f3d18c
+Prior:
+- full: #f5191c
+- fade: #fa8c8d
+--&gt;
+
+`\(\renewcommand{\vec}[1]{\boldsymbol{#1}}\)`
+`\(\DeclareMathOperator{\logNormal}{log Normal}\)`
+`\(\DeclareMathOperator{\Normal}{Normal}\)`
+`\(\DeclareMathOperator{\InvGamma}{Inverse Gamma}\)`
+`\(\DeclareMathOperator{\Exponential}{Exponential}\)`
+
+
+
+---
+
+# Surplus production models
+
+&lt;img src="0945_Best_files/figure-html/unnamed-chunk-1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# The posterior is the goal
+
+## `$$\color{#3B99B1}{[\vec{\theta}, \vec{P} \mid \vec{I}]} \propto \color{#7F9977}{[\vec{I} \mid \vec{P}, \vec{\theta}]} \color{#E8A419}{[\vec{P} \mid \vec{\theta}]} \color{#F5191C}{[\vec{\theta}]}$$`
+
+.pull-left[
+## Components
+
+- `\(\vec{I}\)`: CPUE
+- `\(\vec{P}\)`: Population state
+- `\(\vec{\theta}\)`: Parameters
+]
+
+--
+
+.pull-right[
+## Models
+
+- `\(\color{#3B99B1}{[\vec{\theta}, \vec{P} \mid \vec{I}]}\)`: Posterior
+- `\(\color{#7F9977}{[\vec{I} \mid \vec{P}, \vec{\theta}]}\)`: Observation
+- `\(\color{#E8A419}{[\vec{P} \mid \vec{\theta}]}\)`: State
+- `\(\color{#F5191C}{[\vec{\theta}]}\)`: Priors
+]
+
+---
+
+# MCMC is the tool
+
+&lt;img src="0945_Best_files/figure-html/unnamed-chunk-2-1.png" style="display: block; margin: auto;" /&gt;
+
+```
+## NULL
+```
+
+---
+
+
+# Model - Observation likelihood
+
+`$$\color{#7f9977}{I_t \sim \logNormal(qKP_t, \tau^2)}$$`
+
+`$$\color{#f3d18c}{\tilde{P}_t = P_{t-1} + \frac{r}{m - 1} P_{t-1}(1 - P_{t-1}^{m-1}) -
+  \frac{C_{t-1}}{K}}$$`
+
+`$$\color{#f3d18c}{P_1 \sim \logNormal\left(\log(1), \sigma^2\right)}$$`
+
+`$$\color{#f3d18c}{P_t \sim \logNormal\left(\log(\tilde{P}_t), \sigma^2\right)}$$`
+
+???
+
+- Priors match Meyer &amp; Millar (1999)
+- How to deal with negative biomass predictions?
+- How to minimize divergences and max treedepth warnings?
+- How to increase sampler efficiency?
+
+---
+
+# Model - Latent dynamics
+
+`$$\color{#cfdfca}{I_t \sim \logNormal(qKP_t, \tau^2)}$$`
+
+`$$\color{#e8a419}{\tilde{P}_t = P_{t-1} + \frac{r}{m - 1} P_{t-1}(1 - P_{t-1}^{m-1}) -
+  \frac{C_{t-1}}{K}}$$`
+
+`$$\color{#f3d18c}{P_1 \sim \logNormal\left(\log(1), \sigma^2\right)}$$`
+
+`$$\color{#f3d18c}{P_t \sim \logNormal\left(\log(\tilde{P}_t), \sigma^2\right)}$$`
+
+???
+
+- Priors match Meyer, et al. (1999)
+- Used with and without truncations
+- How to deal with negative biomass predictions?
+- How to minimize divergences and max treedepth warnings?
+- How to increase sampler efficiency?
+
+---
+
+# Model - Initial population 
+
+
+`$$\color{#cfdfca}{I_t \sim \logNormal(qKP_t, \tau^2)}$$`
+
+`$$\color{#f3d18C}{\tilde{P}_t = P_{t-1} + \frac{r}{m - 1} P_{t-1}(1 - P_{t-1}^{m-1}) -
+  \frac{C_{t-1}}{K}}$$`
+
+`$$\color{#e8a419}{P_1 \sim \logNormal\left(\log(1), \sigma^2\right)}$$`
+
+`$$\color{#f3d18c}{P_t \sim \logNormal\left(\log(\tilde{P}_t), \sigma^2\right)}$$`
+
+???
+
+- Priors match Meyer, et al. (1999)
+- Used with and without truncations
+- How to deal with negative biomass predictions?
+- How to minimize divergences and max treedepth warnings?
+- How to increase sampler efficiency?
+
+---
+
+# Model - Population likelihood
+
+
+`$$\color{#cfdfca}{I_t \sim \logNormal(qKP_t, \tau^2)}$$`
+
+`$$\color{#f3d18C}{\tilde{P}_t = P_{t-1} + \frac{r}{m - 1} P_{t-1}(1 - P_{t-1}^{m-1}) -
+  \frac{C_{t-1}}{K}}$$`
+
+`$$\color{#f3d18c}{P_1 \sim \logNormal\left(\log(1), \sigma^2\right)}$$`
+
+`$$\color{#e8a419}{P_t \sim \logNormal\left(\log(\tilde{P}_t), \sigma^2\right)}$$`
+
+???
+
+- Priors match Meyer, et al. (1999)
+- Used with and without truncations
+- How to deal with negative biomass predictions?
+- How to minimize divergences and max treedepth warnings?
+- How to increase sampler efficiency?
+
+---
+
+# Priors
+
+`$$\color{#f5191c}{r \sim \logNormal\left(-1.38, 0.51^2\right)}$$`
+
+`$$\color{#f5191c}{K \sim \logNormal\left(5.04, 0.5162^2\right)}$$`
+
+`$$\color{#f5191c}{p(q) \propto \frac{1}{q}}$$`
+
+`$$\color{#f5191c}{\sigma^2 \sim \InvGamma\left(3.79, 0.0102\right)}$$`
+
+`$$\color{#f5191c}{\tau^2 \sim \InvGamma\left(1.71, 0.0086\right)}$$`
+
+???
+
+- From Meyer and Millar (1999)
+
+---
+
+# Parameterizations
+
+|                       | Proc. err.    | `\(\vec{P} &gt; 0\)`    | Marg. `\(q\)`     | Schaefer      |
+| :-------------------  | :-----------: | :------------:   | :-----------: | :-----------: |
+| Centered              | C             | Lower bound      |               |               |
+| Noncentered           | **NC**        | Lower bound      |               |               |
+| Marginal `\(q\)`          | C             | Lower bound      | **×**         |               |
+| Explicit `\(F\)`          | C             | **Explicit `\(F\)`** |               |               |
+| Constrained `\(\vec{P}\)` | C             | **Dyn. bounds**  |               | **×**         |
+
+---
+
+# Catch of South Atlantic Albacore
+
+
+
+&lt;img src="0945_Best_files/figure-html/tuna_catch_plot-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Parameterization affects diagnostics
+
+&lt;img src="figs/fig2_diagplot.svg" style="display: block; margin: auto;" /&gt;
+
+???
+
+- Solid: Pella-Tomlinson, estimated `\(m\)`
+- Short dash: Pella-Tomlinson, `\(P_{MSY} = 0.4\)`
+- Long dash: Schaefer
+
+---
+
+# Parameterization affects efficiency
+
+&lt;img src="figs/fig3_effplot.svg" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Posteriors (mostly) don't change
+
+&lt;img src="figs/fig4_biopost_estm.svg" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Posteriors (mostly) don't change
+
+&lt;img src="figs/fig4_biopost_fixm.svg" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Posteriors (mostly) don't change
+
+&lt;img src="figs/fig4_biopost_schaef.svg" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Posteriors (mostly) don't change
+
+&lt;img src="figs/fig5_mgtpost.svg" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Chapter 4 conclusions
+
+- Parameterizations matter
+- Careful tuning of modern MCMC samplers yields improved performance
+- Diagnostics matter
+- Marginalization of parameters improves performance
+
+---
+
+# Thank you!
+
+- Jim Thorson
+- Rick Methot
+- Punt Lab
+- QERM
+- SAFS
+- GSS organizers
+
+---
+
+# Centered parameterization
+
+`$$\color{#cfdfca}{I_t \sim \logNormal(qKP_t, \tau^2)}$$`
+
+`$$\color{#e8a419}{\tilde{P}_t = \max\begin{cases}
+    P_{t-1} + \frac{r}{m-1} P_{t-1}(1 - P_{t-1}^{m-1}) - \frac{C_{t-1}}{K}\\
+    0.001
+    \end{cases}}$$`
+
+`$$\color{#f3d18c}{P_1 \sim \logNormal\left(\log(1), \sigma^2\right)}$$`
+
+`$$\color{#f3d18c}{P_t \sim \logNormal\left(\log(\tilde{P}_t), \sigma^2\right)}$$`
+
+???
+
+- "Standard" parameterization, used in Meyer &amp; Millar 1999, Winker et al. 2018
+  among others.
+- Need to keep depletion positive.
+
+---
+
+# Noncentered parameterization
+
+`$$\color{#cfdfca}{I_t \sim \logNormal(qKP_t, \tau^2)}$$`
+
+`$$\color{#e8a419}{\tilde{P}_t = \max\begin{cases}
+    \left[P_{t-1} + \frac{r}{m-1} P_{t-1}(1 - P_{t-1}^{m-1}) - \frac{C_{t-1}}{K}\right]\\
+    \quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\times \exp(\sigma u_t)\\
+    0.001
+    \end{cases}}$$`
+
+`$$\color{#e8a419}{\tilde{P}_1 = \exp(\sigma u_1)}$$`
+
+`$$\color{#e8a419}{u_t \sim \Normal(0, 1)}$$`
+
+???
+
+- Decorrelates process variance from state; common stragegy in linear latent
+  Gaussian models
+
+---
+
+# Marginalized catchability
+
+`$$\color{#7f9977}{Z_t = \log\left( \frac{I_t}{P_tK} \right)}$$`
+
+`$$\color{#7f9977}{\hat{q}' = \frac{\sum_t Z_t}{T}}$$`
+
+`$$\color{#7f9977}{Z_t \sim \Normal\left( \hat{q}', \tau^2 \right)}$$`
+
+`$$\color{#f3d18c}{\tilde{P}_t = \max\begin{cases}
+    P_{t-1} + \frac{r}{m-1} P_{t-1}(1 - P_{t-1}^{m-1}) - \frac{C_{t-1}}{K}\\
+    0.001
+    \end{cases}}$$`
+
+???
+
+- Uses *centered* dynamics
+- From Walters &amp; Ludwig (1994)
+
+---
+
+# Explicit fishing mortality
+
+`$$\color{#e8a419}{\tilde{P}_t =
+    \left[P_{t-1} + \frac{r}{m-1} P_{t-1}(1 - P_{t-1}^{m-1}) - \frac{C_{t-1}}{K}\right]\\
+    \quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\times (1 - \exp(F_t))}$$`
+
+`$$\color{#e8a419}{C_t^* = K\left[P_t + \frac{r}{m-1}P_t(1 - P_{t-1}^{m-1})\right]\exp(F_t)}$$`
+
+`$$\color{#e8a419}{C_t \sim \logNormal\left(\log C_t^*, \xi^2\right)}$$`
+
+---
+
+# Explicit fishing mortality
+
+`$$\color{#f5191c}{\xi^2 = \log\left[(\xi^*)^2 + 1\right]}$$`
+
+`$$\color{#f5191c}{\xi^* \sim \Exponential(46)}$$`
+
+`$$\color{#f5191c}{-F_t \sim \Exponential(1)}$$`
+
+???
+
+- Prior on `\(\xi^*\)` is based on 5% probability that CV is greater than 0.05
+- Prior on `\(F_t\)` places flat prior on fraction removed each year
+
+---
+
+# Constrained depletion
+
+`$$\color{#e8a419}{P_1 \sim \logNormal\left(\log(1), \sigma^2\right)}$$`
+
+`$$\color{#e8a419}{P_t \sim \logNormal\left(\log(\tilde{P}_t), \sigma^2\right)}$$`
+
+`$$\color{#e8a419}{
+    \frac{1 + r - 
+      \sqrt{\left(1 + r \right)^2 -
+        \frac{4rC_t}{K}}}{2r} &lt;\hphantom{1 + r + 1 + 1 + 1 + 1}\\
+    \hphantom{1 + r + 1 + 1}P_{t-1} &lt;
+    \frac{1 + r + 
+      \sqrt{\left( 1 + r \right)^2 -
+        \frac{4rC_t}{K}}}{2r}}$$`
+      
+???
+
+- Constrains previous year's population to be large enough to experience both
+  production (potentially negative) and observed fishing.
+- Schaefer only
+- Solve quadratic to get bounds
+      
+
+# Pella-Tomlinson shape prior
+
+&lt;img src="figs/figB1_mprior.svg" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Population parameter posteriors
+
+&lt;img src="figs/figC1_popparpost.svg" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Pella-Tomlinson shape posteriors
+
+&lt;img src="figs/figC2_mpost.svg" style="display: block; margin: auto;" /&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"countIncrementalSlides": false,
+"slideNumberFormat": ""
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
