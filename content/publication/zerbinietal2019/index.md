@@ -34,9 +34,9 @@ featured: false
 
 # links:
 # - name: ""
-url: "https://doi.org/10.1098/rsos.190368"
-url_pdf: "https://royalsocietypublishing.org/doi/pdf/10.1098/rsos.190368"
-url_code: "https://github.com/antarctic-humpback-2019-assessment/"
+url: "doi.org/10.1098/rsos.190368"
+url_pdf: "royalsocietypublishing.org/doi/pdf/10.1098/rsos.190368"
+url_code: "github.com/antarctic-humpback-2019-assessment/"
 url_dataset: ''
 url_poster: ''
 url_project: ''
