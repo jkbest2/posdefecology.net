@@ -8,7 +8,7 @@ authors:
 - Jennifer A. Jackson
 - Andre' E. Punt
 date: "2019-10-16T00:00:00Z"
-doi: "10.1098/rsos190368"
+doi: "10.1098/rsos.190368"
 
 # Schedule page publish date (NOT publication's date).
 publishDate: "2019-10-16T12:00:00Z"
@@ -32,11 +32,13 @@ tags:
 - Source Themes
 featured: false
 
-# links:
-# - name: ""
-url: "doi.org/10.1098/rsos.190368"
-url_pdf: "royalsocietypublishing.org/doi/pdf/10.1098/rsos.190368"
-url_code: "github.com/antarctic-humpback-2019-assessment/"
+links:
+  - name: "PDF"
+    url: https://royalsocietypublishing.org/doi/pdf/10.1098/rsos.190368
+  - icon_pack: fab
+    icon: github
+    name: "Code"
+    url: https://github.com/antarctic-humpback-2019-assessment/
 url_dataset: ''
 url_poster: ''
 url_project: ''
