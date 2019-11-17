@@ -6,7 +6,7 @@ authors:
 - admin
 - Phillip J. Clapham
 - Jennifer A. Jackson
-- Andre' E. Punt
+- André E. Punt
 date: "2019-10-16T00:00:00Z"
 doi: "10.1098/rsos.190368"
 
