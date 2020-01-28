@@ -1,7 +1,7 @@
 ---
 title: Compiling R with Intel compilers and MKL on Hyak
 author: John
-date: '2020-01-28'
+date: '2020-01-10'
 slug: compiling-r
 categories: []
 tags: []
