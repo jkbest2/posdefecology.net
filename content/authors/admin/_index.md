@@ -9,7 +9,7 @@ authors = ["admin"]
 superuser = true
 
 # Role/position
-role = "PhD student"
+role = "PhD candidate"
 
 # Organizations/Affiliations
 #   Separate multiple entries with a comma, using the form: `[ {name="Org1", url=""}, {name="Org2", url=""} ]`.
@@ -90,4 +90,4 @@ interests = [
 
 +++
 
-I am a third year PhD student in the Quantitative Ecology and Resource Management program at the University of Washington. My research focuses on applying spatiotemporal statistical models to questions in fisheries management and ecology. In particular, I am developing models for improving indices of abundance derived from fishery-dependent observations. I am also intereted in improving the computational efficiency and reliability of Bayesian model fits through the application of advanced Markov chain Monte Carlo tools like the No-U-Turn Sampler. Prior to graduate school I worked in aviation maintenance and the outdoor industry.
+I am a fourth year PhD student in the Quantitative Ecology and Resource Management program at the University of Washington. My research focuses on applying spatiotemporal statistical models to questions in fisheries management and ecology. In particular, I am developing models for indices of abundance that include fishery-dependent observations. I am also interested in improving the computational efficiency and reliability of Bayesian model fits through the application of advanced Markov chain Monte Carlo tools like the No-U-Turn Sampler. Prior to graduate school I worked in aviation maintenance and the outdoor industry.
