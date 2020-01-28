@@ -289,6 +289,3 @@ We will focus on personalizing these sites in class on Wednesday. To make the pe
 If you would like to learn more before class, you can go through the *Summer of
 `blogdown`* slides linked above, or check out the [`blogdown`
 book](https://bookdown.org/yihui/blogdown/).
-
-Please email me at [jkbest@uw.edu](mailto:jkbest@uw.edu) if you run into
-difficulty with these instructions.
