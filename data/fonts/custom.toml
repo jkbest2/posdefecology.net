@@ -3,12 +3,13 @@ name = "Default"
 
 # Optional Google font URL
 # google_fonts = "Montserrat:400,700|Roboto:400,400italic,700|Roboto+Mono"
-google_fonts = "Raleway:400,700|Lato:400,400italic,700|Fira+Mono"
+# google_fonts = "Raleway:400,700|Lato:400,400italic,700|Fira+Mono"
+google_fonts = "Rubik:400,600|Barlow:400,400italic,600|Fira+Mono"
 
 # Font families
-heading_font = "Raleway"
-body_font = "Lato"
-nav_font = "Lato"
+heading_font = "Rubik"
+body_font = "Barlow"
+nav_font = "Rubik"
 mono_font = "Fira Mono"
 
 # Font size
