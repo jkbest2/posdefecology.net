@@ -13,7 +13,8 @@ baseurl = "/"
 
 # Enter a copyright notice to display in the site footer.
 # To display a copyright symbol, type `&copy;`.
-copyright = "&copy; John K Best 2018-present"
+copyright = '&copy; John K Best 2018-present. Unless otherwise noted, contents [CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/). Code examples [CC0](http://creativecommons.org/publicdomain/zero/1.0/).'
+
 
 # Enable analytics by entering your Google Analytics tracking ID
 googleAnalytics = ""
