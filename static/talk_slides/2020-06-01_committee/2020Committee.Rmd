@@ -1,0 +1,629 @@
+---
+title: 2019-2020 Progress Update
+author: John Best
+date: June 1, 2020
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      countIncrementalSlides: false
+---
+
+<!-- Catch        "#E16A86"
+     Abundance    "#50A315"
+     Catchability "#009ADE"
+-->
+
+$$
+\require{color}
+\definecolor{C}{RGB}{225,106,134}
+\definecolor{N}{RGB}{80,163,21}
+\definecolor{q}{RGB}{0,154,222}
+\renewcommand{\vec}[1]{\boldsymbol{#1}}
+$$
+
+# Review of concepts
+
+- We observe <span style="color:#E16A86">catch biomass</span>.
+
+--
+
+- We want to learn about changes in <span style="color:#50A315">abundance (biomass)</span>.
+
+--
+
+- We have to account for factors that affect <span
+  style="color:#E16A86">catch</span> besides <span
+  style="color:#50A315">abundance</span>.
+
+--
+
+- Effort is one important driver of catch sizes.
+
+--
+
+- Other factors are collectively called <span
+  style="color:#009ADE">catchability</span>.
+  
+- <span style="color:#009ADE">Catchability</span> can be thought of as having a
+  thinning effect.
+  
+???
+
+- In general, can't know the absolute magnitude of catchability, so we work with
+  relative catchability
+- This means that our resulting are of *relative abundance*
+
+---
+
+## Simplest model of catch
+
+$${\color{C} C} = {\color{N} N} {\color{q} q} E$$
+
+- $\color{C} C$: Catch biomass
+
+- $\color{N} N$: Abundance (biomass)
+
+- $\color{q} q$: Catchability
+
+- $E$: Effort (offset)
+
+???
+
+Effort is an offset, which is why we talk about *catch per unit effort (CPUE)*.
+
+---
+
+## Simple linear predictor - $\log$ link
+
+$$\log {\color{C} C} = \log {\color{N}N} + \log {\color{q}q} + \log E$$
+
+- $\color{C} C$: Catch biomass
+
+- $\color{N} N$: Abundance (biomass)
+
+- $\color{q} q$: Catchability
+
+- $E$: Effort
+
+---
+
+## Including covariates and random effects
+
+$$\log {\color{C} C} =
+  {\color{N} \vec{X}\vec{\beta} + \vec{A}_\omega\vec{\omega} + \vec{A}_{\epsilon}\vec{\epsilon}} +
+  {\color{q} \vec{Q}\vec{\lambda}} + \log E$$
+
+.center[
+- $\color{C} C$: Catch biomass
+]
+
+--
+
+.pull-left[
+### <span style="color:#50A315">Abundance</span>
+
+- $\color{N} \vec{X}\vec{\beta}$: Fixed effects (e.g. year)
+
+- $\color{N} \vec{A}_\omega\vec{\omega}$: Spatial random effects
+
+- $\color{N} \vec{A}_\epsilon\vec{\epsilon}$: Spatiotemporal random effects
+]
+
+--
+
+.pull-right[
+### <span style="color:#009ADE">Catchability</span>
+
+- $\color{q} \vec{Q}\vec{\lambda}$: Fixed effects (e.g. vessel)
+]
+
+--
+
+.center[
+- $E$: Effort
+]
+
+---
+
+## Need to account for zero inflation
+
+$${\color{C}C} \sim \begin{cases}
+  \operatorname{Bernoulli}(1 - p) & \text{for } {\color{C}C} = 0\\
+  \operatorname{log normal}\left(r - \frac{\sigma^{2}}{2}, \sigma^{2}\right) & \text{for
+  } {\color{C}C} > 0
+  \end{cases}$$
+
+- $\color{C} C$: Catch biomass
+
+--
+
+- $p$: Encounter probability
+
+--
+
+- $r$: Positive catch rate
+
+- $\sigma^2$: Catch variance parameter
+
+---
+
+.pull-left[
+### Probability of encounter
+
+$$p = 1 - \exp(-a n)$$
+
+- $p$: Encounter probability
+
+- $a$: Area swept (effort offset)
+
+- $n$: Group density
+]
+
+--
+
+.pull-right[
+### Positive catch rate
+
+$$r = \frac{n}{p}w$$
+
+- $r$: Positive catch rate
+
+- $n$: Group density
+
+- $p$: Encounter probability
+
+- $w$: Weight per group
+]
+
+???
+
+Probability of encounter is probablity of non-zero of Poisson with rate $an$.
+
+---
+
+## Linear predictors
+
+$$\log \vec{n} =
+  {\color{N} \vec{X}_n\vec{\beta}_n + \vec{A}_\omega\vec{\omega}_n + \vec{A}_{\epsilon}\vec{\epsilon}_n} +
+  {\color{q} \vec{Q}_n\vec{\lambda}_n}$$
+$$\log \vec{w} =
+  {\color{N} \vec{X}_w\vec{\beta}_w + \vec{A}_\omega\vec{\omega}_w + \vec{A}_{\epsilon}\vec{\epsilon}_w} +
+  {\color{q} \vec{Q}_w\vec{\lambda}_w}$$
+
+
+.center[
+$\vec{n}$: Group density
+
+$\vec{w}$: Weight per group
+]
+
+--
+
+.pull-left[
+### <span style="color:#50A315">Abundance</span>
+
+- $\color{N} \vec{X}\vec{\beta}$: Fixed effects (e.g. year)
+
+- $\color{N} \vec{A}_\omega\vec{\omega}$: Spatial random effects
+
+- $\color{N} \vec{A}_\epsilon\vec{\epsilon}$: Spatiotemporal random effects
+]
+
+--
+
+.pull-right[
+### <span style="color:#009ADE">Catchability</span>
+
+- $\color{q} \vec{Q}\vec{\lambda}$: Fixed effects (e.g. vessel)
+]
+
+???
+
+This is a simple version of Jim's VAST model
+
+---
+
+## Index estimate linear predictor
+
+$$\log \vec{n}^{*} =
+  {\color{N} \vec{X}_n^*\vec{\beta}_n +
+    \vec{A}_\omega^{*}\vec{\omega}_n +
+    \vec{A}_{\epsilon}^{*}\vec{\epsilon}_n}$$
+$$\log \vec{w}^{*} =
+  {\color{N} \vec{X}_w^*\vec{\beta}_w +
+    \vec{A}_\omega^{*}\vec{\omega}_w +
+    \vec{A}_{\epsilon}^{*}\vec{\epsilon}_w}$$
+
+
+.center[
+$\vec{n}^*$: Index group density
+
+$\vec{w}^*$: Index weight per group
+]
+
+--
+
+.pull-left[
+### <span style="color:#50A315">Abundance</span>
+
+- $\color{N} \vec{X}^{*}\vec{\beta}$: Fixed effects (e.g. year)
+
+- $\color{N} \vec{A}_\omega^{*}\vec{\omega}$: Spatial random effects
+
+- $\color{N} \vec{A}_\epsilon^{*}\vec{\epsilon}$: Spatiotemporal random effects
+]
+
+--
+
+.pull-right[
+### <span style="color:#009ADE">Catchability</span>
+]
+
+???
+
+- Use set of locations across domain to do spatial integration
+- Design matrix $\vec{X}$ includes years and any other covariates.
+- Projection matrices go to integration locations
+
+---
+
+## Index estimate
+
+$$I_{y} = \sum_{\mathcal{S}} n_{ys}^{*} w_{ys}^{*} \mathbb{I}_{y}$$
+
+- $I_y$: Estimate of relative abundance in year $y$
+
+- $y$: Year
+
+- $\mathcal{S}$: Set of integration locations
+
+- $s$: Spatial location
+
+- $n_{ys}^*$: Abundance-only group density in year $y$ at location $s$
+
+- $w_{ys}^*$: Abundance-only weight per group in year $y$ at location $s$
+
+- $\mathbb{I}_y$: Indicator function for year $y$
+
+---
+
+# Chapter 1 - Spatially varying catchability
+
+???
+
+- This is where the bulk of my effort has gone this year.
+- Had hoped to be done by now.
+
+---
+
+## Want to combine survey and fishery catch observations
+
+.pull-left[
+### Survey
+
+- Defined sampling scheme
+
+- Defined sampling procedures
+]
+
+--
+
+.pull-right[
+### Fishery
+
+- Nonrandom sampling:
+  - Abundance
+  - Other target species
+  - Distance to port
+
+- Varying catchability
+  - Other target species
+  - Nonstandardized procedures
+]
+
+???
+
+Can we account for these factors by allowing fishery vessel catchability to vary
+in space and/or time?
+
+---
+
+## Can we account for nonrandom sampling and procedures to standardize fishery data?
+
+- Use spatial and spatiotemporal random effects on catchability
+
+- Only for fishery observations
+
+- Need survey observations for identifiability
+
+---
+
+## Model for spatially varying catchability
+
+$$\log \vec{n} =
+  {\color{N} \vec{X}_n\vec{\beta}_n + \vec{A}_\omega\vec{\omega}_n + \vec{A}_{\epsilon}\vec{\epsilon}_n} +
+  {\color{q} \vec{Q}_n\vec{\lambda}_n + \vec{A}_\phi\vec{\phi}_{n} + \vec{A}_{\psi}\vec{\psi}_{n}}$$
+$$\log \vec{w} =
+  {\color{N} \vec{X}_w\vec{\beta}_w + \vec{A}_\omega\vec{\omega}_w + \vec{A}_{\epsilon}\vec{\epsilon}_w} +
+  {\color{q} \vec{Q}_w\vec{\lambda}_w + \vec{A}_\phi\vec{\phi}_{w} + \vec{A}_{\psi}\vec{\psi}_{w}}$$
+
+.center[
+$\vec{n}$: Group density
+
+$\vec{w}$: Weight per group
+]
+
+--
+
+.pull-left[
+### <span style="color:#50A315">Abundance</span>
+
+- $\color{N} \vec{X}\vec{\beta}$: Fixed effects (e.g. year)
+
+- $\color{N} \vec{A}_\omega\vec{\omega}$: Spatial random effects
+
+- $\color{N} \vec{A}_\epsilon\vec{\epsilon}$: Spatiotemporal random effects
+]
+
+--
+
+.pull-right[
+### <span style="color:#009ADE">Catchability</span>
+
+- $\color{q} \vec{Q}\vec{\lambda}$: Fixed effects (e.g. vessel)
+
+- $\color{q} \vec{A}_\phi\vec{\phi}$: Spatial random effects
+
+- $\color{q} \vec{A}_\psi\vec{\psi}$: Spatiotemporal random effects
+]
+
+---
+
+## Simulation study
+
+.pull-left[
+### Operating models
+
+- Preference proportional to abundance
+
+- Preference independent of abundance
+
+- Direct spatially varying catchability
+
+- Combination
+]
+
+--
+
+.pull-right[
+### Estimation models
+
+- Survey data only
+
+- All data, no spatial catchability
+
+- All data with spatial catchability
+]
+
+---
+
+## Comparisons
+
+Estimated indices compared to true values for:
+
+- Bias
+
+- RMSE
+
+- Coverage
+
+---
+
+## Where am I?
+
+- Operating model is written.
+
+- Estimation model is written.
+
+- Can fit spatiotemporal (VAST-style) models
+
+---
+
+## Where am I stuck?
+
+- Estimation model often fails to give positive definite Hessians
+
+- Covariance parameters are particularly problematic
+
+- Constraints have been helpful some of the time
+
+
+---
+
+## Preliminary results - Bias
+
+Including data with preferentially sampled observations results in bias:
+
+| Estimation model | Bias (δ) |
+|------------------|----------|
+| Survey only      | 1.07     |
+| All observations | 1.20     |
+| Spatial q        | 1.20     |
+
+---
+
+## Preliminary results - Error
+
+Including additional data reduces error
+
+| Estimation model | RMSE |
+|------------------|------|
+| Survey only      | 0.35 |
+| All observations | 0.15 |
+| Spatial q        | 0.15 |
+
+---
+
+## Preliminary results - Calibration
+
+```{r echo=FALSE}
+knitr::include_graphics("figs/calibration.png")
+```
+---
+
+# Chapter 2 - Preferential sampling
+
+- Account for preferential sampling when only fishery data are available.
+
+- Not currently working on this chapter
+
+---
+
+# Chapter 3 - Nonstationarity
+
+- Allow spatial covariance parameters to vary in space when estimated indices of
+  abundance.
+
+```{r echo=FALSE}
+knitr::include_graphics("figs/nonstationary.png")
+```
+
+---
+
+# Chapter 4 - Parameterizations
+
+```{r echo=FALSE}
+knitr::include_graphics("figs/ch4-pdf.png")
+```
+
+---
+
+# Extra slides
+
+---
+    
+## Operating model
+
+.pull-left[
+1. Start at equilibrium
+2. Harvest
+3. Population dynamics
+4. Allow movement
+5. Repeat from 2
+]
+
+.pull-right[
+![Example population](figs/resized_fishmap2.gif)
+]
+
+???
+
+## Allows for:
+
+- Varying preference in time and space
+- Varying catchability in time and space
+- Different catch distributions
+
+---
+
+
+## Comparison criteria - Bias
+
+$$\log \hat{b}_{trde} = \alpha_{rde} + \delta_{de}\log b_{trd} + \epsilon_{trde}$$
+$$\epsilon_{trde} \sim \operatorname{normal}(0, \sigma^{2}_{de})$$
+
+.pull-left[
+### Terms
+
+- $\hat{b}$: Unscaled estimated indices of abundance
+
+- $\alpha$: Scaling factor
+
+- $delta$: Bias term
+
+- $b$: True abundance
+
+- $\epsilon$: Regression error
+
+- $\sigma^{2}$: Regression variance
+]
+
+.pull-right[
+### Indices
+
+- $t$: Year
+
+- $r$: Replicate
+
+- $d$: Operating model
+
+- $e$: Estimation model
+]
+
+Note that $\delta = 1$ indicates unbiased estimation.
+
+## Comparison criteria - Scaling
+
+Need to put indices on the same scale for comparison. Scale so that product over
+all years is one.
+
+$$I_{t} = \frac{b_{t}}{\exp\left(\frac{1}{n}\sum_{t}\log b_{t}\right)}$$
+
+- $I_{t}$: Scaled index
+
+- $t$: Year
+
+- $b_{t}$: Unscaled index
+
+- $n$: Number of years
+
+---
+
+## Comparison criteria - Error
+
+RMSE will be used
+
+$$\operatorname{RMSE}_{de} =
+\sqrt{\frac{1}{R}\frac{1}{T}\sum_{r}\sum_{t}\left(\hat{I}_{trde} -
+I_{trde}\right)^{2}}$$
+
+.pull-left[
+### Terms
+
+- $\operatorname{RMSE}$: Root mean square error
+
+- $R$: Number of replicates
+
+- $T$: Number of years
+
+- $\hat{I}$: Estimated scaled index
+
+- $I$: True scaled index
+]
+
+.pull-right[
+### Indices
+
+- $t$: Year
+
+- $r$: Replicate
+
+- $d$: Operating model
+
+- $e$: Estimation model
+]
+
+
+---
+
+## Case study
+
+- Species from Alaska groundfish complex with both survey and observer data
+- Fit same three estimation models
+- Compare precision of indices
+
+???
+
+May be reasonable to do more than one species, but extending to multispecies analysis a la VAST is beyond the scope of this chapter.
