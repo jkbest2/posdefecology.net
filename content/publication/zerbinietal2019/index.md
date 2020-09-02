@@ -23,13 +23,16 @@ publication_types: ["2"]
 publication: "Royal Society Open Science"
 publication_short: "R. Soc. Open Sci."
 
-abstract: The recovery of whale populations from centuries of exploitation will have important management and ecological implications due to greater exposure to anthropogenic activities and increasing prey consumption. Here, a Bayesian population model integrates catch data, estimates of abundance, and information on genetics and biology to assess the recovery of western South Atlantic (WSA) humpback whales (**Megaptera novaeangliae*). Modelling scenarios evaluated the sensitivity of model outputs resulting from the use of different data, different model assumptions and uncertainty in catch allocation and in accounting for whales killed but not landed. A long period of exploitation drove WSA humpback whales to the brink of extinction. They declined from nearly 27 000 (95% PI = 22 800–33 000) individuals in 1830 to only 450 (95% PI = 200–1400) whales in the mid-1950s. Protection led to a strong recovery and the current population is estimated to be at 93% (95% PI = 73–100%) of its pre-exploitation size. The recovery of WSA humpback whales may result in large removals of their primary prey, the Antarctic krill (*Euphausia superba*), and has the potential to modify the community structure in their feeding grounds. Continued monitoring is needed to understand how these whales will respond to modern threats and to climate-driven changes to their habitats.
+abstract: The recovery of whale populations from centuries of exploitation will have important management and ecological implications due to greater exposure to anthropogenic activities and increasing prey consumption. Here, a Bayesian population model integrates catch data, estimates of abundance, and information on genetics and biology to assess the recovery of western South Atlantic (WSA) humpback whales (**Megaptera novaeangliae*). Modelling scenarios evaluated the sensitivity of model outputs resulting from the use of different data, different model assumptions and uncertainty in catch allocation and in accounting for whales killed but not landed. A long period of exploitation drove WSA humpback whales to the brink of extinction. They declined from nearly 27,000 (95% PI = 22,800–33,000) individuals in 1830 to only 450 (95% PI = 200–1400) whales in the mid-1950s. Protection led to a strong recovery and the current population is estimated to be at 93% (95% PI = 73–100%) of its pre-exploitation size. The recovery of WSA humpback whales may result in large removals of their primary prey, the Antarctic krill (*Euphausia superba*), and has the potential to modify the community structure in their feeding grounds. Continued monitoring is needed to understand how these whales will respond to modern threats and to climate-driven changes to their habitats.
 
 # Summary. An optional shortened abstract.
 # summary: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis posuere tellus ac convallis placerat. Proin tincidunt magna sed ex sollicitudin condimentum.
 
 tags:
-- Source Themes
+- humpback whales
+- SIR
+- Bayesian modeling
+- population dynamics
 featured: false
 
 links:

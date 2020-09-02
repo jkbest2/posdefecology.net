@@ -25,7 +25,11 @@ abstract: Bayesian state-space surplus production models are commonly applied in
 # summary: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis posuere tellus ac convallis placerat. Proin tincidunt magna sed ex sollicitudin condimentum.
 
 tags:
-- Source Themes
+- surplus production models
+- parameterization
+- MCMC
+- Stan
+- Bayesian modeling
 featured: false
 
 links:
