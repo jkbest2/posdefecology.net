@@ -1,17 +1,17 @@
 ---
 title: "Equilibrium calculations for the next generation of spatial assessment models: technical and practical considerations (in review)"
 authors:
-- Kapur, Maia
-- Siple, Margaret C.
-- Olmos, Maxime
-- Privatera-Johnson, Kristin
-- Adams, Grant D.
+- Maia Kapur
+- Margaret C. Siple
+- Maxime Olmos
+- Kristin Privatera-Johnson
+- Grant D. Adams
 - admin
-- Castillo-Jordán, Claudio
-- Cronin-Fine, Lee
-- Havron, Andrea
-- Lee, Qi
-- Method, Richard D.
+- Claudio Castillo-Jordán
+- Lee Cronin-Fine
+- Andrea Havron
+- Qi Lee
+- Richard D. Methot
 
 date: "In review"
 doi: ""
