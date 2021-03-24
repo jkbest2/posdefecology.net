@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Operating model examples</title>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+
+    $('#button').click(function(e) {  
+        // var study = $("#study").val();
+        // var study = document.getElementsByName("study").value
+        let study = document.querySelector('input[name="study"]:checked').value
+        var repl = $("#repl").val();
+        var om = $("#om").val();
+        var relurl = "om_sims/"+study+"_"+repl+"_"+om+"_opmod.html"
+        // window.location.replace(relurl);
+        document.getElementsByName("cake")[0].src = relurl; 
+
+    });
+});
+</script>
+<style>
+   /* The sidebar menu */
+.sidenav {
+  height: 100%; /* Full-height: remove this if you want "auto" height */
+  width: 320px; /* Set the width of the sidebar */
+  position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  left: 0;
+  background-color: #bbb; /* Black */
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding-top: 20px;
+  padding-left: 20px;
+}
+
+/* Style page content */
+.main {
+  margin-left: 320px; /* Same as the width of the sidebar */
+  padding: 0px 10px;
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidebar (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+} 
+</style>
+
+</head>
+<body>
+
+  <div class="sidenav">
+    <h3>Study:</h3>
+       <input type="radio" id="qdevscaling" name="study" value="qdevscaling">
+       <label for="qdevscaling">Commercial catchability variance</label><br>
+       <input type="radio" id="sharedq" name="study" value="sharedq">
+       <label for="sharedq">Spatial catchability shared with survey</label><br>
+       <input type="radio" id="prefintensity" name="study" value="prefintensity">
+       <label for="prefintensity">Intensity of commercial fleet preference</label><br>
+
+<h3>Replicate number:</h3>
+       <input type="number" value="1" min="1" max="5" id="repl"><br>
+
+<h3>Operating model number:</h3>
+       <input type="number" value="1" min="1" max="5" id="om"><br><br>
+
+       <button type="button" id="button">Load OM!</button><br><br>
+
+    <p>
+      Each of the three studies varies a different parameter controlling the
+      simulated fishery. The <b>commercial catchability variance</b> study looks
+      at the magnitude of variation of the catchability variation in the
+      commercial fleet. The <b>spatial catchability shared with survey</b> study
+      fixes the variation in catchability for the commercial fleet, but varies
+      what proportion of that variation is experienced by the survey fleet.
+      The <b>intensity of commercial fleet preference</b> varies the intensity
+      of preferential selection by the commercial fleet.
+    </p>
+
+  </div>
+
+<!-- <style> -->
+<!--     #cake { width:100%; height:100%; } -->
+<!-- </style> -->
+
+  <div class="main">
+       <iframe src="" width="100%" height="1024" frameborder=0 name="cake" id="cake" style =""></></iframe>
+</div>
+
+</body>
+</html>
