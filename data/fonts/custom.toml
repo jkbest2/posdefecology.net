@@ -2,9 +2,8 @@
 name = "Default"
 
 # Optional Google font URL
-# google_fonts = "Montserrat:400,700|Roboto:400,400italic,700|Roboto+Mono"
-# google_fonts = "Raleway:400,700|Lato:400,400italic,700|Fira+Mono"
-google_fonts = "Rubik:400,600|Barlow:400,400italic,600|Fira+Mono"
+google_fonts = "family=Rubik:wght@400;700&family=Barlow:wght@400,400italic,600&family=Fira+Mono"
+
 
 # Font families
 heading_font = "Rubik"
