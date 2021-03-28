@@ -1,14 +1,14 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" >
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="https://www.w3.org/1999/xhtml" >
 <head>
     <title>Operating model examples</title>
-<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
 
 <script type="text/javascript">
 
 $(document).ready(function(){
 
-    $('#button').click(function(e) {  
+    $('#button').click(function(e) {
         // var study = $("#study").val();
         // var study = document.getElementsByName("study").value
         let study = document.querySelector('input[name="study"]:checked').value
@@ -16,7 +16,7 @@ $(document).ready(function(){
         var om = $("#om").val();
         var relurl = "om_sims/"+study+"_"+repl+"_"+om+"_opmod.html"
         // window.location.replace(relurl);
-        document.getElementsByName("cake")[0].src = relurl; 
+        document.getElementsByName("cake")[0].src = relurl;
 
     });
 });
@@ -46,7 +46,7 @@ $(document).ready(function(){
 @media screen and (max-height: 450px) {
   .sidenav {padding-top: 15px;}
   .sidenav a {font-size: 18px;}
-} 
+}
 </style>
 
 </head>
